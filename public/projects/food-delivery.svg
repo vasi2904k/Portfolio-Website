@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Food Delivery Time Prediction project cover">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="1030" cy="120" r="160" fill="#38bdf8" opacity="0.2"/>
+  <circle cx="180" cy="560" r="190" fill="#f97316" opacity="0.2"/>
+  <text x="600" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="60" fill="#f8fafc" font-weight="700">Food-Delivery-Time-Prediction</text>
+</svg>
