@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { GITHUB_USERNAME, LINKEDIN_URL, PROFILE } from "@/config/config";
 import Reveal from "@/components/Reveal";
+import Hero3DElement from "@/components/Hero3DElement";
 
 const githubProfile = `https://github.com/${GITHUB_USERNAME}`;
 
@@ -141,14 +141,10 @@ export default function Hero() {
             <div className="group relative w-full aspect-[4/3] max-w-sm lg:max-w-lg mx-auto rounded-2xl overflow-hidden border border-white/10 bg-slate-900/50 shadow-[0_0_60px_rgba(14,165,233,0.15)] ring-1 ring-white/5 transition-all duration-700 hover:shadow-[0_0_80px_rgba(14,165,233,0.3)]">
               {/* Internal Glow Overlay */}
               <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-transparent to-orange-500/10 mix-blend-overlay z-10 transition-opacity duration-500 group-hover:opacity-100 opacity-60"></div>
-              
-              <Image 
-                src="/hero-ai.png" 
-                alt="Neural Network AI Visual" 
-                fill 
-                className="object-cover transition-transform duration-1000 group-hover:scale-105 group-hover:brightness-110"
-                priority
-              />
+              {/* 3D WebGL Canvas replacing the static image */}
+              <div className="absolute inset-0 z-20">
+                <Hero3DElement />
+              </div>
             </div>
           </Reveal>
         </div>
