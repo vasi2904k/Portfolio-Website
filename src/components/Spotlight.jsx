@@ -5,7 +5,6 @@ import { motion, useSpring } from "framer-motion";
 
 export default function Spotlight() {
   const [isMounted, setIsMounted] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
 
   // Use springs for smooth following
@@ -15,25 +14,35 @@ export default function Spotlight() {
 
   useEffect(() => {
     setIsMounted(true);
-    
-    const handleMouseMove = (e) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-      setMousePosition({ x: e.clientX, y: e.clientY });
+
+    const moveToCenter = () => {
+      cursorX.set(window.innerWidth / 2);
+      cursorY.set(window.innerHeight / 2);
+      setIsVisible(true);
+    };
+
+    const handlePointerMove = (event) => {
+      cursorX.set(event.clientX);
+      cursorY.set(event.clientY);
       if (!isVisible) setIsVisible(true);
     };
 
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
+    const handlePointerLeave = () => setIsVisible(false);
+    const handlePointerEnter = () => setIsVisible(true);
+    const handleResize = () => moveToCenter();
 
-    window.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mouseenter", handleMouseEnter);
+    moveToCenter();
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("resize", handleResize);
+    document.addEventListener("pointerleave", handlePointerLeave);
+    document.addEventListener("pointerenter", handlePointerEnter);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      document.removeEventListener("mouseenter", handleMouseEnter);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("resize", handleResize);
+      document.removeEventListener("pointerleave", handlePointerLeave);
+      document.removeEventListener("pointerenter", handlePointerEnter);
     };
   }, [cursorX, cursorY, isVisible]);
 
@@ -41,7 +50,7 @@ export default function Spotlight() {
 
   return (
     <motion.div
-      className="hidden md:block pointer-events-none fixed inset-0 z-50 transition-opacity duration-300"
+      className="pointer-events-none fixed inset-0 z-50 transition-opacity duration-300"
       style={{ opacity: isVisible ? 1 : 0 }}
     >
       <motion.div

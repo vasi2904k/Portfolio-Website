@@ -24,6 +24,17 @@ If you want to use this template for yourself, you **do not** need to know how t
    - `PROJECT_IMAGES`: Map your repository names to custom cover images you put in the `/public` folder.
 4. Save the file. The website will automatically update with your new information!
 
+## 🖼️ Update Your Profile Photo
+
+If you want to replace the profile picture shown on the homepage:
+
+1. Put your image file inside the `public` folder.
+2. Name it `profile.png` so the site can load it automatically.
+3. If you want to use a different file name, update the image path in `src/components/Hero.jsx`.
+4. Refresh the site after saving your changes.
+
+For example, the current profile image is loaded from `public/profile.png`.
+
 ---
 
 ## 💻 How to Run Locally
@@ -33,7 +44,7 @@ To test the website on your own computer, you just need Node.js installed.
 1. Open your terminal or command prompt.
 2. Navigate into this project folder:
    ```bash
-   cd path/to/portfolio
+   cd C:\Users\dell\Desktop\portfolio
    ```
 3. Install the required dependencies:
    ```bash
@@ -43,7 +54,20 @@ To test the website on your own computer, you just need Node.js installed.
    ```bash
    npm run dev
    ```
-5. Open your browser and go to `http://localhost:3000` to see your portfolio!
+5. Open your browser and go to `http://localhost:3000` to see your portfolio.
+
+If you want to run the production version instead:
+
+1. Build the app:
+   ```bash
+   npm run build
+   ```
+2. Start the production server:
+   ```bash
+   npm run start
+   ```
+
+If Node.js is not installed, install the latest LTS version first, then repeat the steps above.
 
 ---
 

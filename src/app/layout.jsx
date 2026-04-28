@@ -1,4 +1,5 @@
 import { Space_Grotesk, IBM_Plex_Sans } from "next/font/google";
+import Background3DScene from "@/components/Background3DScene";
 import Spotlight from "@/components/Spotlight";
 import "./globals.css";
 
@@ -14,8 +15,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${display.variable} ${body.variable} bg-hero-noise text-slate-100`}>
+        <Background3DScene />
         <Spotlight />
-        {children}
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

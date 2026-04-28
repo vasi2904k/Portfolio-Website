@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { GITHUB_USERNAME, LINKEDIN_URL, PROFILE } from "@/config/config";
 import Reveal from "@/components/Reveal";
-import Hero3DElement from "@/components/Hero3DElement";
 
 const githubProfile = `https://github.com/${GITHUB_USERNAME}`;
 
@@ -135,16 +135,19 @@ export default function Hero() {
           </Reveal>
         </div>
 
-        {/* Right Side: AI Generated Image */}
+        {/* Right Side: Profile Image */}
         <div className="flex w-full lg:w-[45%] justify-center items-center mt-8 lg:mt-0">
           <Reveal delay={200} className="w-full">
-            <div className="group relative w-full aspect-[4/3] max-w-sm lg:max-w-lg mx-auto rounded-2xl overflow-hidden border border-white/10 bg-slate-900/50 shadow-[0_0_60px_rgba(14,165,233,0.15)] ring-1 ring-white/5 transition-all duration-700 hover:shadow-[0_0_80px_rgba(14,165,233,0.3)]">
-              {/* Internal Glow Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-transparent to-orange-500/10 mix-blend-overlay z-10 transition-opacity duration-500 group-hover:opacity-100 opacity-60"></div>
-              {/* 3D WebGL Canvas replacing the static image */}
-              <div className="absolute inset-0 z-20">
-                <Hero3DElement />
-              </div>
+            <div className="group relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-full border border-white/10 bg-slate-900/60 shadow-[0_0_60px_rgba(14,165,233,0.2)] ring-1 ring-white/5 transition-all duration-700 hover:shadow-[0_0_80px_rgba(14,165,233,0.32)] lg:max-w-md">
+              <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-transparent to-cyan-400/10 mix-blend-overlay z-10 opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+              <Image
+                src="/profile.png"
+                alt={PROFILE.name}
+                fill
+                priority
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 1024px) 80vw, 480px"
+              />
             </div>
           </Reveal>
         </div>
