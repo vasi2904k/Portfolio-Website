@@ -9,9 +9,10 @@ function NeuralOrbit() {
   const coreRef = useRef(null);
   const ringRef = useRef(null);
   const swarmRef = useRef(null);
+  const frameCountRef = useRef(0);
 
   const [nodePositions, nodeConnections] = useMemo(() => {
-    const nodeCount = 18;
+    const nodeCount = 12; // Reduced from 18
     const positions = new Float32Array(nodeCount * 3);
     const connections = [];
 
@@ -32,7 +33,7 @@ function NeuralOrbit() {
 
     for (let index = 0; index < nodeCount; index += 1) {
       connections.push([index, (index + 1) % nodeCount]);
-      connections.push([index, (index + 5) % nodeCount]);
+      if (index % 2 === 0) connections.push([index, (index + 4) % nodeCount]); // Reduced connections
     }
 
     return [positions, connections];
@@ -61,6 +62,10 @@ function NeuralOrbit() {
   );
 
   useFrame((state) => {
+    frameCountRef.current += 1;
+    // Skip frames to reduce update frequency
+    if (frameCountRef.current % 2 !== 0) return;
+
     const elapsed = state.clock.elapsedTime;
 
     if (coreRef.current) {
@@ -78,28 +83,28 @@ function NeuralOrbit() {
   });
 
   return (
-    <Float speed={0.8} rotationIntensity={0.35} floatIntensity={0.7}>
+    <Float speed={0.5} rotationIntensity={0.25} floatIntensity={0.5}>
       <group ref={swarmRef} position={[0, 0.2, 0]}>
         <mesh ref={coreRef}>
-          <icosahedronGeometry args={[1.15, 1]} />
+          <icosahedronGeometry args={[1.15, 0]} />
           <meshStandardMaterial
             color="#0ea5e9"
             wireframe
             transparent
-            opacity={0.16}
+            opacity={0.12}
             emissive="#0ea5e9"
-            emissiveIntensity={0.55}
+            emissiveIntensity={0.4}
           />
         </mesh>
 
         <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[2.15, 0.035, 16, 120]} />
+          <torusGeometry args={[2.15, 0.04, 12, 80]} />
           <meshStandardMaterial
             color="#2dd4bf"
             transparent
-            opacity={0.28}
+            opacity={0.2}
             emissive="#2dd4bf"
-            emissiveIntensity={0.4}
+            emissiveIntensity={0.3}
           />
         </mesh>
 
@@ -113,10 +118,10 @@ function NeuralOrbit() {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.09}
+            size={0.08}
             color="#7dd3fc"
             transparent
-            opacity={0.8}
+            opacity={0.7}
             sizeAttenuation
             blending={THREE.AdditiveBlending}
           />
@@ -127,13 +132,13 @@ function NeuralOrbit() {
             key={`${index}-${start.x}-${end.x}`}
             points={[start, end]}
             color={index % 3 === 0 ? "#38bdf8" : "#2dd4bf"}
-            lineWidth={1}
+            lineWidth={0.8}
             transparent
-            opacity={0.14}
+            opacity={0.1}
           />
         ))}
 
-        {nodeConnections.slice(0, 6).map(([startIndex], index) => {
+        {nodeConnections.slice(0, 4).map(([startIndex], index) => {
           const offset = startIndex * 3;
           const x = nodePositions[offset];
           const y = nodePositions[offset + 1];
@@ -141,13 +146,13 @@ function NeuralOrbit() {
 
           return (
             <mesh key={`node-${index}`} position={[x, y, z]}>
-              <sphereGeometry args={[0.08, 14, 14]} />
+              <sphereGeometry args={[0.08, 10, 10]} />
               <meshStandardMaterial
                 color={index % 2 === 0 ? "#38bdf8" : "#2dd4bf"}
                 emissive={index % 2 === 0 ? "#38bdf8" : "#2dd4bf"}
-                emissiveIntensity={1}
+                emissiveIntensity={0.8}
                 transparent
-                opacity={0.75}
+                opacity={0.65}
               />
             </mesh>
           );
@@ -159,15 +164,14 @@ function NeuralOrbit() {
 
 export default function Background3DScene() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 opacity-65">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(14,165,233,0.08),transparent_42%),radial-gradient(circle_at_70%_70%,rgba(45,212,191,0.05),transparent_34%)]" />
-      <Canvas camera={{ position: [0, 0, 7.5], fov: 38 }} dpr={[1, 1.5]} performance={{ min: 0.5 }}>
+    <div className="pointer-events-none fixed inset-0 z-0 opacity-40">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(14,165,233,0.05),transparent_42%),radial-gradient(circle_at_70%_70%,rgba(45,212,191,0.03),transparent_34%)]" />
+      <Canvas camera={{ position: [0, 0, 7.5], fov: 38 }} dpr={[1, 1.2]} performance={{ min: 0.3, max: 0.6 }}>
         <Suspense fallback={null}>
           <PerformanceMonitor />
-          <ambientLight intensity={0.45} />
-          <directionalLight position={[6, 8, 10]} intensity={1.1} color="#7dd3fc" />
-          <pointLight position={[-6, -3, 4]} intensity={0.65} color="#2dd4bf" />
-          <pointLight position={[4, 2, -6]} intensity={0.3} color="#f97316" />
+          <ambientLight intensity={0.3} />
+          <directionalLight position={[6, 8, 10]} intensity={0.8} color="#7dd3fc" />
+          <pointLight position={[-6, -3, 4]} intensity={0.4} color="#2dd4bf" />
           <NeuralOrbit />
           <Preload all />
         </Suspense>

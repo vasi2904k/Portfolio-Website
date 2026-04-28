@@ -10,36 +10,36 @@ const githubProfile = `https://github.com/${GITHUB_USERNAME}`;
 export default function Hero() {
   return (
     <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#060b13] p-7 shadow-glass backdrop-blur-xl md:p-12">
-      {/* ML Data Nodes Animation Background */}
+      {/* ML Data Nodes Animation Background - Optimized */}
       <motion.div 
         animate={{ y: [0, -15, 0], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-sky-500/20 blur-3xl" 
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-sky-500/20 blur-2xl will-change-transform" 
       />
       <motion.div 
         animate={{ y: [0, 20, 0], opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-500/15 blur-3xl" 
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-500/15 blur-2xl will-change-transform" 
       />
       
-      {/* Floating Data Dots */}
-      <div className="absolute inset-0 z-0 overflow-hidden opacity-30">
-        {[...Array(6)].map((_, i) => (
+      {/* Floating Data Dots - Reduced count */}
+      <div className="absolute inset-0 z-0 overflow-hidden opacity-20">
+        {[...Array(3)].map((_, i) => (
           <motion.div
             key={i}
             animate={{ 
               y: [0, -40, 0],
-              opacity: [0, 0.8, 0],
-              scale: [0.8, 1.2, 0.8]
+              opacity: [0, 0.6, 0],
+              scale: [0.8, 1.1, 0.8]
             }}
             transition={{
-              duration: 4 + i,
+              duration: 5 + i,
               repeat: Infinity,
-              delay: i * 0.5,
+              delay: i * 0.8,
               ease: "linear"
             }}
-            className="absolute h-1 w-1 rounded-full bg-sky-400 shadow-[0_0_8px_2px_rgba(56,189,248,0.8)]"
-            style={{ left: `${15 + i * 15}%`, top: `${80 - i * 5}%` }}
+            className="absolute h-1 w-1 rounded-full bg-sky-400 shadow-[0_0_4px_1px_rgba(56,189,248,0.6)] will-change-transform"
+            style={{ left: `${20 + i * 30}%`, top: `${80 - i * 10}%` }}
           />
         ))}
       </div>

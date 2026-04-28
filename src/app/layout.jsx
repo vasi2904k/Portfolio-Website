@@ -1,7 +1,13 @@
+import dynamic from "next/dynamic";
 import { Space_Grotesk, IBM_Plex_Sans } from "next/font/google";
-import Background3DScene from "@/components/Background3DScene";
 import Spotlight from "@/components/Spotlight";
 import "./globals.css";
+
+// Dynamic import for heavy 3D component
+const Background3DScene = dynamic(() => import("@/components/Background3DScene"), {
+  ssr: false,
+  loading: () => null
+});
 
 const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
 const body = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });

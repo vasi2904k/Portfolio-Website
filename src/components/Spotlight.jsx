@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useSpring } from "framer-motion";
 
 export default function Spotlight() {
   const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const throttleRef = useRef(null);
 
-  // Use springs for smooth following
-  const springConfig = { damping: 30, stiffness: 200, mass: 1 };
+  // Use springs for smooth following - reduced stiffness for better performance
+  const springConfig = { damping: 40, stiffness: 120, mass: 1.5 };
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
 
@@ -22,9 +23,13 @@ export default function Spotlight() {
     };
 
     const handlePointerMove = (event) => {
-      cursorX.set(event.clientX);
-      cursorY.set(event.clientY);
-      if (!isVisible) setIsVisible(true);
+      // Throttle pointer events
+      if (throttleRef.current) clearTimeout(throttleRef.current);
+      throttleRef.current = setTimeout(() => {
+        cursorX.set(event.clientX);
+        cursorY.set(event.clientY);
+        if (!isVisible) setIsVisible(true);
+      }, 16); // ~60fps throttle
     };
 
     const handlePointerLeave = () => setIsVisible(false);
@@ -33,8 +38,8 @@ export default function Spotlight() {
 
     moveToCenter();
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
     document.addEventListener("pointerleave", handlePointerLeave);
     document.addEventListener("pointerenter", handlePointerEnter);
 
@@ -43,6 +48,7 @@ export default function Spotlight() {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("pointerleave", handlePointerLeave);
       document.removeEventListener("pointerenter", handlePointerEnter);
+      if (throttleRef.current) clearTimeout(throttleRef.current);
     };
   }, [cursorX, cursorY, isVisible]);
 
@@ -51,10 +57,10 @@ export default function Spotlight() {
   return (
     <motion.div
       className="pointer-events-none fixed inset-0 z-50 transition-opacity duration-300"
-      style={{ opacity: isVisible ? 1 : 0 }}
+      style={{ opacity: isVisible ? 0.7 : 0 }}
     >
       <motion.div
-        className="absolute h-96 w-96 rounded-full bg-sky-400/10 blur-[100px]"
+        className="absolute h-80 w-80 rounded-full bg-sky-400/8 blur-[80px] will-change-transform"
         style={{
           left: 0,
           top: 0,
