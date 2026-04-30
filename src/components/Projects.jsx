@@ -27,7 +27,14 @@ async function fetchRepos() {
 export default async function Projects() {
   try {
     const repos = await fetchRepos();
-    const allRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count || new Date(b.updated_at) - new Date(a.updated_at));
+    // Sort: newest created first, then by stars, then by most recently updated
+    const allRepos = [...repos].sort((a, b) => {
+      const createdDiff = new Date(b.created_at) - new Date(a.created_at);
+      if (createdDiff !== 0) return createdDiff;
+      const starsDiff = b.stargazers_count - a.stargazers_count;
+      if (starsDiff !== 0) return starsDiff;
+      return new Date(b.updated_at) - new Date(a.updated_at);
+    });
 
     return (
       <section id="projects" className="pt-20">

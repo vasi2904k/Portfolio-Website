@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useState, Suspense } from "react";
+import { useRef, useMemo, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, PerformanceMonitor, Preload } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,7 +10,7 @@ function ParticleSphere() {
   
   // Create particles
   const [positions, colors] = useMemo(() => {
-    const count = 1000;
+    const count = 150; // Reduced from 400 for performance
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     
@@ -73,7 +73,7 @@ function ParticleSphere() {
       
       {/* Central Core */}
       <mesh>
-        <icosahedronGeometry args={[1.2, 1]} />
+        <icosahedronGeometry args={[1.2, 0]} />
         <meshStandardMaterial 
           color="#0ea5e9" 
           wireframe 
@@ -88,13 +88,35 @@ function ParticleSphere() {
 }
 
 export default function Hero3DElement() {
-  const [dpr, setDpr] = useState(1.5);
-  
+  const [isMobile, setIsMobile] = useState(true); // Default to true to prevent accidental heavy rendering
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(pointer: coarse), (max-width: 640px)");
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+
+  if (!isMounted || isMobile) {
+    return (
+      <div className="w-full h-full absolute inset-0">
+        <div className="w-full h-full bg-gradient-to-br from-sky-50 via-teal-50 to-transparent opacity-20" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing">
-      <Canvas camera={{ position: [0, 0, 6], fov: 45 }} dpr={dpr} performance={{ min: 0.5 }}>
+      <Canvas camera={{ position: [0, 0, 6], fov: 45 }} dpr={[1, 1]} performance={{ min: 0.5 }}>
         <Suspense fallback={null}>
-          <PerformanceMonitor onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} color="#0ea5e9" />
           <ParticleSphere />
@@ -102,7 +124,7 @@ export default function Hero3DElement() {
             enableZoom={false} 
             enablePan={false}
             autoRotate 
-            autoRotateSpeed={0.5}
+            autoRotateSpeed={0.25}
           />
           <Preload all />
         </Suspense>

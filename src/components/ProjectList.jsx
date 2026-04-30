@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import TiltCard from "@/components/TiltCard";
 import { PROJECT_IMAGES, GITHUB_USERNAME } from "@/config/config";
+import useIsMobile from "@/utils/useIsMobile";
 
 function normalizeRepoName(value) {
   return (value || "")
@@ -26,9 +27,15 @@ function getProjectImage(repoName) {
 
 export default function ProjectList({ repos }) {
   const [showAll, setShowAll] = useState(false);
-  
-  // Show 3 by default
-  const visibleRepos = showAll ? repos : repos.slice(0, 3);
+  const isMobile = useIsMobile();
+  const [defaultCount, setDefaultCount] = useState(3);
+
+  useEffect(() => {
+    setDefaultCount(isMobile ? 1 : 3);
+  }, [isMobile]);
+
+  // Show fewer on mobile by default
+  const visibleRepos = showAll ? repos : repos.slice(0, defaultCount);
 
   return (
     <>

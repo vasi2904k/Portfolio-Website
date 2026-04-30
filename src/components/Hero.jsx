@@ -2,47 +2,67 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import useIsMobile from "@/utils/useIsMobile";
 import { GITHUB_USERNAME, LINKEDIN_URL, PROFILE } from "@/config/config";
 import Reveal from "@/components/Reveal";
 
 const githubProfile = `https://github.com/${GITHUB_USERNAME}`;
 
 export default function Hero() {
+  const isMobile = useIsMobile();
   return (
     <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#060b13] p-7 shadow-glass backdrop-blur-xl md:p-12">
-      {/* ML Data Nodes Animation Background - Optimized */}
-      <motion.div 
-        animate={{ y: [0, -15, 0], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-sky-500/20 blur-2xl will-change-transform" 
-      />
-      <motion.div 
-        animate={{ y: [0, 20, 0], opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-500/15 blur-2xl will-change-transform" 
-      />
-      
-      {/* Floating Data Dots - Reduced count */}
-      <div className="absolute inset-0 z-0 overflow-hidden opacity-20">
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{ 
-              y: [0, -40, 0],
-              opacity: [0, 0.6, 0],
-              scale: [0.8, 1.1, 0.8]
-            }}
-            transition={{
-              duration: 5 + i,
-              repeat: Infinity,
-              delay: i * 0.8,
-              ease: "linear"
-            }}
-            className="absolute h-1 w-1 rounded-full bg-sky-400 shadow-[0_0_4px_1px_rgba(56,189,248,0.6)] will-change-transform"
-            style={{ left: `${20 + i * 30}%`, top: `${80 - i * 10}%` }}
+      {/* ML Data Nodes Animation Background - Optimized for mobile */}
+      {isMobile ? (
+        <>
+          <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-sky-500/12 blur-2xl" />
+          <div className="absolute -bottom-20 left-8 h-44 w-44 rounded-full bg-cyan-500/10 blur-2xl" />
+          <div className="absolute inset-0 z-0 overflow-hidden opacity-10">
+            {[...Array(2)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute h-1 w-1 rounded-full bg-sky-400 shadow-[0_0_4px_1px_rgba(56,189,248,0.4)]"
+                style={{ left: `${25 + i * 30}%`, top: `${78 - i * 8}%` }}
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <motion.div 
+            animate={{ y: [0, -15, 0], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-sky-500/20 blur-2xl will-change-transform" 
           />
-        ))}
-      </div>
+          <motion.div 
+            animate={{ y: [0, 20, 0], opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-500/15 blur-2xl will-change-transform" 
+          />
+          
+          {/* Floating Data Dots - Reduced count */}
+          <div className="absolute inset-0 z-0 overflow-hidden opacity-20">
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ 
+                  y: [0, -40, 0],
+                  opacity: [0, 0.6, 0],
+                  scale: [0.8, 1.1, 0.8]
+                }}
+                transition={{
+                  duration: 5 + i,
+                  repeat: Infinity,
+                  delay: i * 0.8,
+                  ease: "linear"
+                }}
+                className="absolute h-1 w-1 rounded-full bg-sky-400 shadow-[0_0_4px_1px_rgba(56,189,248,0.6)] will-change-transform"
+                style={{ left: `${20 + i * 30}%`, top: `${80 - i * 10}%` }}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
         

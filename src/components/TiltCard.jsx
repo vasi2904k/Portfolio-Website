@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 export default function TiltCard({ children, className = "" }) {
@@ -15,15 +15,16 @@ export default function TiltCard({ children, className = "" }) {
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
 
-  const handleMouseMove = (e) => {
-    if (!ref.current) return;
-    
-    // Disable effect on touch devices / phones for better performance
+  const isHoverable = useRef(true);
+
+  useEffect(() => {
     if (typeof window !== "undefined" && window.matchMedia) {
-      if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        return;
-      }
+      isHoverable.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     }
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current || !isHoverable.current) return;
     
     const rect = ref.current.getBoundingClientRect();
     

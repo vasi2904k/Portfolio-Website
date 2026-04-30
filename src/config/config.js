@@ -18,6 +18,7 @@ export const PORTFOLIO_CHATBOT = {
 export const CHAT_PROVIDER = "gemini";
 
 export const FEATURED_PROJECTS = [
+  "Global-Pollution-Analysis",
   "Portfolio-Website",
   "AgroLens-AI",
   "Food-Delivery-Time-Prediction",
@@ -33,7 +34,7 @@ export const FEATURED_PROJECTS = [
 export const PROJECT_SETTINGS = {
   mode: "manual",
   strictManual: true,
-  showCount: 6
+  showCount: 7
 };
 
 // Optional cover image per repository. Use paths from /public or full external URLs.
@@ -43,7 +44,8 @@ export const PROJECT_IMAGES = {
   "Food-Delivery-Time-Prediction": "/projects/food-delivery.png",
   "decision-tree-regression": "/projects/decision-tree.png",
   "Admission-Prediction-Linear-Regression": "/projects/admission.png",
-  "imdb-movie-eda": "/projects/imdb-eda.png"
+  "imdb-movie-eda": "/projects/imdb-eda.png",
+  "Global-Pollution-Analysis": "/projects/global-pollution.png"
 };
 
 export const experienceData = [
