@@ -1,7 +1,57 @@
 [
-  {"id":1,"name":"ecommerce-sales","full_name":"vasi2904k/ecommerce-sales","html_url":"https://github.com/vasi2904k/ecommerce-sales","description":"amazon, e-commerce, eda, data-preprocessing, feature-engineering, visualization, pandas, scikit-learn","language":"Jupyter Notebook"},
-  {"id":2,"name":"AgroLens-AI","full_name":"vasi2904k/AgroLens-AI","html_url":"https://github.com/vasi2904k/AgroLens-AI","description":"Computer Vision system for crop disease detection","language":"Jupyter Notebook"},
-  {"id":3,"name":"Portfolio-Website","full_name":"vasi2904k/Portfolio-Website","html_url":"https://github.com/vasi2904k/Portfolio-Website","description":"Modern AI-powered portfolio with Next.js","language":"JavaScript"},
-  {"id":4,"name":"Global-Pollution-Analysis","full_name":"vasi2904k/Global-Pollution-Analysis","html_url":"https://github.com/vasi2904k/Global-Pollution-Analysis","description":"ML analysis of global pollution data","language":"Jupyter Notebook"},
-  {"id":5,"name":"Food-Delivery-Time-Prediction","full_name":"vasi2904k/Food-Delivery-Time-Prediction","html_url":"https://github.com/vasi2904k/Food-Delivery-Time-Prediction","description":"ML project for food delivery time prediction","language":"Jupyter Notebook"}
+  {
+    "id": 1,
+    "name": "ecommerce-sales",
+    "full_name": "vasi2904k/ecommerce-sales",
+    "html_url": "https://github.com/vasi2904k/ecommerce-sales",
+    "description": "amazon, e-commerce, eda, data-preprocessing, feature-engineering, visualization, pandas, scikit-learn",
+    "language": "Jupyter Notebook",
+    "created_at": "2026-05-01T00:00:00Z",
+    "updated_at": "2026-05-03T00:00:00Z",
+    "stargazers_count": 5
+  },
+  {
+    "id": 2,
+    "name": "AgroLens-AI",
+    "full_name": "vasi2904k/AgroLens-AI",
+    "html_url": "https://github.com/vasi2904k/AgroLens-AI",
+    "description": "Computer Vision system for crop disease detection",
+    "language": "Jupyter Notebook",
+    "created_at": "2026-04-15T00:00:00Z",
+    "updated_at": "2026-05-02T00:00:00Z",
+    "stargazers_count": 12
+  },
+  {
+    "id": 3,
+    "name": "Portfolio-Website",
+    "full_name": "vasi2904k/Portfolio-Website",
+    "html_url": "https://github.com/vasi2904k/Portfolio-Website",
+    "description": "Modern AI-powered portfolio with Next.js",
+    "language": "JavaScript",
+    "created_at": "2026-04-20T00:00:00Z",
+    "updated_at": "2026-05-01T00:00:00Z",
+    "stargazers_count": 8
+  },
+  {
+    "id": 4,
+    "name": "Global-Pollution-Analysis",
+    "full_name": "vasi2904k/Global-Pollution-Analysis",
+    "html_url": "https://github.com/vasi2904k/Global-Pollution-Analysis",
+    "description": "ML analysis of global pollution data",
+    "language": "Jupyter Notebook",
+    "created_at": "2026-03-10T00:00:00Z",
+    "updated_at": "2026-04-30T00:00:00Z",
+    "stargazers_count": 3
+  },
+  {
+    "id": 5,
+    "name": "Food-Delivery-Time-Prediction",
+    "full_name": "vasi2904k/Food-Delivery-Time-Prediction",
+    "html_url": "https://github.com/vasi2904k/Food-Delivery-Time-Prediction",
+    "description": "ML project for food delivery time prediction",
+    "language": "Jupyter Notebook",
+    "created_at": "2026-02-15T00:00:00Z",
+    "updated_at": "2026-04-25T00:00:00Z",
+    "stargazers_count": 6
+  }
 ]
