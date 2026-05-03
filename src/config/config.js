@@ -18,6 +18,7 @@ export const PORTFOLIO_CHATBOT = {
 export const CHAT_PROVIDER = "gemini";
 
 export const FEATURED_PROJECTS = [
+  "ecommerce-sales",
   "Global-Pollution-Analysis",
   "Portfolio-Website",
   "AgroLens-AI",
@@ -39,6 +40,7 @@ export const PROJECT_SETTINGS = {
 
 // Optional cover image per repository. Use paths from /public or full external URLs.
 export const PROJECT_IMAGES = {
+  "ecommerce-sales": "/projects/ecommerce-sales.png",
   "Portfolio-Website": "/projects/portfolio.png",
   "AgroLens-AI": "/projects/agro-lens.png",
   "Food-Delivery-Time-Prediction": "/projects/food-delivery.png",

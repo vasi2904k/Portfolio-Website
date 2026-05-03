@@ -41,7 +41,7 @@ export default async function Projects() {
         <SectionTitle
           eyebrow="Live GitHub"
           title="All GitHub Repositories"
-          description="Automatically refreshed from GitHub and shown directly from your account instead of a curated subset."
+          description="A showcase of my recent machine learning projects and experiments."
         />
 
         <ProjectList repos={allRepos} />
