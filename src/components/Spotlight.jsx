@@ -8,8 +8,8 @@ export default function Spotlight() {
   const [isVisible, setIsVisible] = useState(false);
   const throttleRef = useRef(null);
 
-  // Use springs for smooth following - reduced stiffness for better performance
-  const springConfig = { damping: 40, stiffness: 120, mass: 1.5 };
+  // Use springs for smooth following - optimized for performance
+  const springConfig = { damping: 50, stiffness: 100, mass: 2 };
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
 
@@ -60,7 +60,7 @@ export default function Spotlight() {
       style={{ opacity: isVisible ? 0.7 : 0 }}
     >
       <motion.div
-        className="absolute h-80 w-80 rounded-full bg-sky-400/8 blur-[80px] will-change-transform"
+        className="absolute h-80 w-80 rounded-full bg-sky-400/8 blur-[80px] will-change-transform sm:h-60 sm:w-60"
         style={{
           left: 0,
           top: 0,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 export default function TiltCard({ children, className = "" }) {
@@ -23,8 +23,14 @@ export default function TiltCard({ children, className = "" }) {
     }
   }, []);
 
-  const handleMouseMove = (e) => {
+  const lastTimeRef = useRef(0);
+
+  const handleMouseMove = useCallback((e) => {
     if (!ref.current || !isHoverable.current) return;
+    
+    const now = Date.now();
+    if (now - lastTimeRef.current < 16) return; // Throttle to 60fps
+    lastTimeRef.current = now;
     
     const rect = ref.current.getBoundingClientRect();
     
@@ -39,12 +45,12 @@ export default function TiltCard({ children, className = "" }) {
     
     x.set(xPct);
     y.set(yPct);
-  };
+  }, [x, y]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     x.set(0);
     y.set(0);
-  };
+  }, [x, y]);
 
   return (
     <motion.div

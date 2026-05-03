@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import TiltCard from "@/components/TiltCard";
+import ProjectShare from "@/components/ProjectShare";
 import { PROJECT_IMAGES, GITHUB_USERNAME } from "@/config/config";
 import useIsMobile from "@/utils/useIsMobile";
 
@@ -42,10 +43,11 @@ export default function ProjectList({ repos }) {
       <div className="flex flex-col gap-8 mt-6">
         {visibleRepos.map((repo, index) => (
           <Reveal key={repo.id} delay={(index % 3) * 100}>
-            <a href={repo.html_url} target="_blank" rel="noreferrer" className="block outline-none rounded-2xl ring-sky-400 focus-visible:ring-2" style={{ perspective: "1000px" }}>
+            <div className="block outline-none rounded-2xl ring-sky-400 focus-visible:ring-2" style={{ perspective: "1000px" }}>
               <TiltCard>
                 <article className="ml-card group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-glass backdrop-blur-xl transition-all duration-500 hover:border-sky-300/40 hover:bg-white/10 hover:shadow-[0_15px_50px_rgba(2,132,199,0.2)]">
                   <div className="relative aspect-[16/9] w-full md:w-[45%] shrink-0 overflow-hidden border-b md:border-b-0 md:border-r border-white/10 bg-slate-900/70" style={{ transform: "translateZ(30px)" }}>
+                    <a href={repo.html_url} target="_blank" rel="noreferrer" className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-inset">
                     {getProjectImage(repo.name) ? (
                       <Image
                         src={getProjectImage(repo.name)}
@@ -58,11 +60,14 @@ export default function ProjectList({ repos }) {
                         {repo.name}
                       </div>
                     )}
+                    </a>
                   </div>
 
                   <div className="flex flex-1 flex-col p-6 md:p-8 justify-center" style={{ transform: "translateZ(40px)" }}>
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="text-xl md:text-2xl font-bold leading-snug text-white group-hover:text-sky-300 transition-colors">{repo.name}</h3>
+                      <a href={repo.html_url} target="_blank" rel="noreferrer" className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded">
+                        <h3 className="text-xl md:text-2xl font-bold leading-snug text-white group-hover:text-sky-300 transition-colors">{repo.name}</h3>
+                      </a>
                       <span className="shrink-0 rounded-full border border-amber-200/40 bg-amber-400/10 px-3 py-1 text-xs text-amber-100">
                         {repo.stargazers_count} stars
                       </span>
@@ -77,14 +82,17 @@ export default function ProjectList({ repos }) {
                         {repo.language || "Language not specified"}
                       </div>
 
-                      <span
-                        className="inline-flex items-center gap-2 text-sm font-medium text-sky-300 transition group-hover:text-sky-200"
+                      <a
+                        href={repo.html_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-sky-300 transition hover:text-sky-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
                       >
                         View Source
                         <svg className="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
-                      </span>
+                      </a>
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-2 pt-6 border-t border-white/5">
@@ -97,10 +105,17 @@ export default function ProjectList({ repos }) {
                         </span>
                       ))}
                     </div>
+
+                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="text-xs text-slate-500">
+                        Updated {new Date(repo.updated_at).toISOString().split('T')[0]}
+                      </span>
+                      <ProjectShare repo={repo} />
+                    </div>
                   </div>
                 </article>
               </TiltCard>
-            </a>
+            </div>
           </Reveal>
         ))}
       </div>

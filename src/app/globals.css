@@ -94,6 +94,7 @@ body::after {
   filter: blur(8px);
   animation: auroraShift 14s ease-in-out infinite;
   z-index: -2;
+  will-change: transform, opacity;
 }
 
 h1,
@@ -117,6 +118,7 @@ a {
   background: rgba(15, 23, 42, 0.45);
   color: #dbeafe;
   animation: dataPulse 2.8s ease-in-out infinite;
+  will-change: box-shadow, opacity;
 }
 
 .ml-card {
@@ -132,6 +134,7 @@ a {
   transform: translateX(-120%);
   transition: transform 0.75s ease;
   z-index: -1;
+  will-change: transform;
 }
 
 .ml-card:hover::after {

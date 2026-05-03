@@ -12,13 +12,14 @@ const nextConfig = {
         hostname: 'opengraph.githubassets.com',
       },
     ],
+    formats: ['image/webp', 'image/avif'],
   },
   // Compression
   compress: true,
   // Optimizations
   swcMinify: true,
   productionBrowserSourceMaps: false,
-  // PWA support
+  // PWA support and enhanced caching
   headers: async () => {
     return [
       {
@@ -31,6 +32,10 @@ const nextConfig = {
         ]
       }
     ];
+  },
+  // Enable React strict mode for development
+  experimental: {
+    optimizePackageImports: ['framer-motion', '@react-three/fiber'],
   }
 };
 
