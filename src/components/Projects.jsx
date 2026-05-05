@@ -34,8 +34,8 @@ async function fetchRepos() {
 
 export default async function Projects() {
   const repos = await fetchRepos();
-  // Sort: newest created first, then by stars, then by most recently updated
-  const allRepos = [...repos].sort((a, b) => {
+  // Filter out private repos, then sort: newest created first, then by stars, then by most recently updated
+  const allRepos = [...repos].filter(repo => !repo.private).sort((a, b) => {
     const createdDiff = new Date(b.created_at) - new Date(a.created_at);
     if (createdDiff !== 0) return createdDiff;
     const starsDiff = b.stargazers_count - a.stargazers_count;
