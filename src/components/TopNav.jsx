@@ -44,16 +44,17 @@ export default function TopNav() {
   }, []);
 
   return (
-    <nav className="sticky top-3 z-40 mb-6 rounded-2xl border border-white/15 bg-slate-950/45 p-2 shadow-glass backdrop-blur-xl md:top-4">
+    <nav className="sticky top-3 z-40 mb-6 border border-[#26313e] bg-[#080b10]/95 p-2 md:top-4">
       <ul className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <li key={item.id}>
+        {items.map((item, index) => (
+          <li key={item.id} className="nav-item" style={{ animationDelay: `${40 + index * 55}ms` }}>
             <a
               href={`#${item.id}`}
-              className={`inline-flex rounded-full px-4 py-2 text-xs font-medium tracking-[0.08em] transition md:text-sm ${
+              aria-current={activeId === item.id ? "page" : undefined}
+              className={`inline-flex px-3 py-2 text-xs font-medium tracking-[0.08em] transition md:text-sm ${
                 activeId === item.id
-                  ? "bg-sky-300/20 text-sky-100 ring-1 ring-sky-200/40"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white"
+                  ? "bg-[#b8f35c] text-[#080b10]"
+                  : "text-slate-400 hover:text-[#b8f35c]"
               }`}
             >
               {item.label}

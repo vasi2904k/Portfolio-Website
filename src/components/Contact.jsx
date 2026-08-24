@@ -12,10 +12,10 @@ export default function Contact() {
       />
 
       <Reveal>
-        <div className="grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-glass backdrop-blur-xl md:grid-cols-3">
+        <div className="surface grid gap-4 p-4 md:grid-cols-3 md:p-6">
           <a
             href={`mailto:${EMAIL}`}
-            className="rounded-xl border border-white/10 bg-black/20 p-4 transition hover:border-sky-300/40"
+            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
           >
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Email</p>
             <p className="mt-2 text-sm text-white">{EMAIL}</p>
@@ -25,7 +25,7 @@ export default function Contact() {
             href={`https://github.com/${GITHUB_USERNAME}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-xl border border-white/10 bg-black/20 p-4 transition hover:border-sky-300/40"
+            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
           >
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">GitHub</p>
             <p className="mt-2 text-sm text-white">github.com/{GITHUB_USERNAME}</p>
@@ -35,7 +35,7 @@ export default function Contact() {
             href={LINKEDIN_URL}
             target="_blank"
             rel="noreferrer"
-            className="rounded-xl border border-white/10 bg-black/20 p-4 transition hover:border-sky-300/40"
+            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
           >
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">LinkedIn</p>
             <p className="mt-2 text-sm text-white">mohammed-vasi-khan</p>

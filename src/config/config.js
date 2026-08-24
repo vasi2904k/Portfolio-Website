@@ -8,15 +8,6 @@ export const PROFILE = {
   tagline: "Machine Learning Engineer striving to build impactful AI solutions and solve real-world problems"
 };
 
-export const PORTFOLIO_CHATBOT = {
-  intro: "A lightweight portfolio assistant for quick answers about projects, skills, and contact details.",
-  prompts: ["What do you build?", "Show me your best projects.", "What tools do you use?", "How can I contact you?"],
-  systemPrompt:
-    "You are a warm, natural-sounding portfolio assistant for Mohammed Vasi Khan. Reply like a real person in a professional but friendly tone. Keep answers concise, specific, and conversational. Use the portfolio details provided to answer questions about projects, skills, contact, and background. If the user asks something outside the portfolio, be honest, say you are best at portfolio-related questions, and offer a helpful next step. Avoid sounding robotic, avoid mentioning policies, and do not claim to have capabilities you do not have."
-};
-
-export const CHAT_PROVIDER = "gemini";
-
 export const FEATURED_PROJECTS = [
   "ecommerce-sales",
   "Global-Pollution-Analysis",

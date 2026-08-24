@@ -1,147 +1,16 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
-import TiltCard from "@/components/TiltCard";
 import ProjectShare from "@/components/ProjectShare";
 import { PROJECT_IMAGES, GITHUB_USERNAME } from "@/config/config";
 import useIsMobile from "@/utils/useIsMobile";
-
-function normalizeRepoName(value) {
-  return (value || "")
-    .normalize("NFKD")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]/g, "");
-}
-
-function getProjectImage(repoName) {
-  if (PROJECT_IMAGES?.[repoName]) {
-    return PROJECT_IMAGES[repoName];
-  }
-
-  const normalizedName = normalizeRepoName(repoName);
-  const entry = Object.entries(PROJECT_IMAGES || {}).find(([name]) => normalizeRepoName(name) === normalizedName);
-  return entry ? entry[1] : null;
-}
-
+const normal = (v) => (v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const imageFor = (name) => PROJECT_IMAGES[name] || Object.entries(PROJECT_IMAGES).find(([key]) => normal(key) === normal(name))?.[1];
+function ProjectImage({ src, alt }) { const [loaded, setLoaded] = useState(false); if (!src) return <div className="flex h-full items-center justify-center p-4 font-mono text-xs text-slate-500">PREVIEW_UNAVAILABLE</div>; return <Image src={src} alt={alt} fill sizes="(max-width: 768px) 100vw, 190px" onLoad={() => setLoaded(true)} className={`project-image object-cover ${loaded ? "is-loaded" : ""}`} />; }
 export default function ProjectList({ repos }) {
-  const [showAll, setShowAll] = useState(false);
-  const isMobile = useIsMobile();
-  const [defaultCount, setDefaultCount] = useState(3);
-
-  useEffect(() => {
-    setDefaultCount(isMobile ? 1 : 3);
-  }, [isMobile]);
-
-  // Show fewer on mobile by default
-  const visibleRepos = showAll ? repos : repos.slice(0, defaultCount);
-
-  return (
-    <>
-      <div className="flex flex-col gap-8 mt-6">
-        {visibleRepos.map((repo, index) => (
-          <Reveal key={repo.id} delay={(index % 3) * 100}>
-            <div className="block outline-none rounded-2xl ring-sky-400 focus-visible:ring-2" style={{ perspective: "1000px" }}>
-              <TiltCard>
-                <article className="ml-card group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-glass backdrop-blur-xl transition-all duration-500 hover:border-sky-300/40 hover:bg-white/10 hover:shadow-[0_15px_50px_rgba(2,132,199,0.2)]">
-                  <div className="relative aspect-[16/9] w-full md:w-[45%] shrink-0 overflow-hidden border-b md:border-b-0 md:border-r border-white/10 bg-slate-900/70" style={{ transform: "translateZ(30px)" }}>
-                    <a href={repo.html_url} target="_blank" rel="noreferrer" className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-inset">
-                    {getProjectImage(repo.name) ? (
-                      <Image
-                        src={getProjectImage(repo.name)}
-                        alt={`${repo.name} cover image`}
-                        fill={true}
-                        className="object-cover transition-transform duration-500 group-hover:scale-105 group-hover:brightness-110"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sky-500/25 via-slate-900 to-orange-500/20 p-4 text-center text-sm font-medium text-slate-200">
-                        {repo.name}
-                      </div>
-                    )}
-                    </a>
-                  </div>
-
-                  <div className="flex flex-1 flex-col p-6 md:p-8 justify-center" style={{ transform: "translateZ(40px)" }}>
-                    <div className="flex items-start justify-between gap-4">
-                      <a href={repo.html_url} target="_blank" rel="noreferrer" className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded">
-                        <h3 className="text-xl md:text-2xl font-bold leading-snug text-white group-hover:text-sky-300 transition-colors">{repo.name}</h3>
-                      </a>
-                      <span className="shrink-0 rounded-full border border-amber-200/40 bg-amber-400/10 px-3 py-1 text-xs text-amber-100">
-                        {repo.stargazers_count} stars
-                      </span>
-                    </div>
-
-                    <p className="mt-4 flex-1 text-sm md:text-base leading-relaxed text-slate-300">
-                      {repo.description || "No description provided yet."}
-                    </p>
-
-                    <div className="mt-6 flex items-center justify-between">
-                      <div className="text-xs uppercase tracking-[0.16em] text-slate-400 font-medium">
-                        {repo.language || "Language not specified"}
-                      </div>
-
-                      <a
-                        href={repo.html_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-sky-300 transition hover:text-sky-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
-                      >
-                        View Source
-                        <svg className="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </a>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-2 pt-6 border-t border-white/5">
-                      {(repo.topics || []).slice(0, 5).map((topic) => (
-                        <span
-                          key={topic}
-                          className="rounded-full border border-sky-300/20 bg-sky-400/5 px-3 py-1.5 text-xs text-sky-200 transition-colors group-hover:bg-sky-400/15 group-hover:border-sky-300/40"
-                        >
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-white/5">
-                      <span className="text-xs text-slate-500">
-                        Updated {new Date(repo.updated_at).toISOString().split('T')[0]}
-                      </span>
-                      <ProjectShare repo={repo} />
-                    </div>
-                  </div>
-                </article>
-              </TiltCard>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-
-      {repos.length > 3 && (
-        <div className="mt-12 flex flex-col items-center gap-4">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="inline-flex items-center gap-2 rounded-full border border-sky-400/30 bg-sky-500/10 px-8 py-3.5 text-sm font-medium text-sky-300 transition-all hover:bg-sky-500/20 hover:text-sky-200 hover:border-sky-400/50 hover:shadow-[0_0_20px_rgba(56,189,248,0.15)]"
-          >
-            {showAll ? "Show Less Projects" : `Show All Projects (${repos.length})`}
-            <svg className={`h-4 w-4 transition-transform ${showAll ? "rotate-180" : "rotate-0"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          <a
-            href={`https://github.com/${GITHUB_USERNAME}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-300 underline decoration-white/10 underline-offset-4 hover:decoration-white/30"
-          >
-            View Full GitHub Profile
-          </a>
-        </div>
-      )}
-    </>
-  );
+  const [all, setAll] = useState(false); const mobile = useIsMobile(); const [count, setCount] = useState(3);
+  useEffect(() => setCount(mobile ? 2 : 3), [mobile]);
+  const visible = all ? repos : repos.slice(0, count);
+  return <><div className="mt-8 grid gap-4">{visible.map((repo, index) => { const image = imageFor(repo.name); return <Reveal key={repo.id} delay={(index % 3) * 80}><article className="project-record surface overflow-hidden p-4 md:grid md:grid-cols-[190px_1fr] md:gap-6 md:p-5"><div className="project-cover relative mb-5 aspect-[16/10] border border-[#26313e] bg-[#101722] md:mb-0"><ProjectImage src={image} alt={`${repo.name} project preview`} /></div><div><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="record-label technical-label">EXPERIMENT_{String(index + 1).padStart(2, "0")}</p><h3 className="record-title mt-2 text-2xl font-medium text-[#f0f2ed]">{repo.name}</h3></div><span className="record-label border border-[#26313e] px-2 py-1 font-mono text-[10px] text-slate-400">STATUS / ACTIVE</span></div><p className="record-copy mt-3 max-w-2xl text-sm leading-6 text-slate-400">{repo.description || "An in-progress machine learning experiment and engineering record."}</p><div className="pipeline mt-5 flex items-center gap-2 font-mono text-[10px] tracking-[.12em] text-slate-400"><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">DATA</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">PROCESS</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">MODEL</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">OUTPUT</span></div><div className="record-meta mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-[#26313e] pt-4 text-xs text-slate-500"><span>{repo.language || "ML / DATA"}</span><span>UPDATED {new Date(repo.updated_at).toISOString().slice(0, 10)}</span><a className="ml-auto font-medium text-[#b8f35c] hover:underline" href={repo.html_url} target="_blank">EXPLORE CASE STUDY <span className="project-arrow">→</span></a><ProjectShare repo={repo} /></div></div></article></Reveal>; })}</div>{repos.length > count && <div className="mt-8 flex flex-wrap items-center gap-5"><button onClick={() => setAll(!all)} className="border border-[#26313e] px-5 py-3 text-sm text-slate-200 transition-colors hover:border-[#b8f35c]">{all ? "Collapse records" : `Load all ${repos.length} records`}</button><a className="text-sm text-slate-500 hover:text-[#b8f35c]" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer">View GitHub profile ↗</a></div>}</>;
 }
