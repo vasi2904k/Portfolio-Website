@@ -5,6 +5,8 @@ import Hero from "@/components/Hero";
 import Experience from "@/components/Experience";
 import TopNav from "@/components/TopNav";
 import ProjectsSkeleton from "@/components/ProjectsSkeleton";
+import Background3DScene from "@/components/Background3DScene";
+import Spotlight from "@/components/Spotlight";
 
 // Dynamic imports for heavy components
 const LinkedIn = lazy(() => import("@/components/LinkedIn"));
@@ -13,7 +15,10 @@ const Skills = lazy(() => import("@/components/Skills"));
 
 export default function HomePage() {
   return (
-    <main className="relative mx-auto min-h-screen w-full max-w-6xl px-4 pb-20 pt-4 md:px-8 md:pt-8">
+    <>
+      <Background3DScene />
+      <Spotlight />
+      <main className="relative z-10 mx-auto min-h-screen w-full max-w-6xl px-4 pb-20 pt-4 md:px-8 md:pt-8">
       <TopNav />
       <Hero />
       <About />
@@ -36,6 +41,7 @@ export default function HomePage() {
         <LinkedIn />
       </Suspense>
       <Contact />
-    </main>
+      </main>
+    </>
   );
 }
