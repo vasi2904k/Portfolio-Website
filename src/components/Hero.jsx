@@ -1,6 +1,25 @@
-"use client";
-import Image from "next/image";
-import TiltCard from "@/components/TiltCard";
-import { GITHUB_USERNAME, LINKEDIN_URL, PROFILE } from "@/config/config";
-const stages = [["01", "DATA", "INPUT SIGNALS"], ["02", "FEATURES", "STRUCTURED CONTEXT"], ["03", "MODEL", "LEARNING SYSTEM"], ["04", "OUTPUT", "ACTIONABLE RESULT"]];
-export default function Hero() { return <section className="hero-space surface relative overflow-hidden p-6 md:p-10"><div className="hero-grid" aria-hidden="true"/><div className="hero-orb orb-one" aria-hidden="true"/><div className="hero-orb orb-two" aria-hidden="true"/><span className="hero-corner corner-tl" aria-hidden="true"/><span className="hero-corner corner-br" aria-hidden="true"/><div className="relative grid items-center gap-12 lg:grid-cols-[1.1fr_.9fr]"><div><div className="hero-enter technical-label flex items-center gap-2"><span className="status-light h-2 w-2 bg-[#b8f35c]"/>Pipeline status / ready</div><p className="hero-enter delay-1 mt-8 font-mono text-xs tracking-[.15em] text-slate-500">USER_ID / VASI_KHAN — PIPELINE_ONLINE</p><h1 className="hero-enter delay-2 mt-3 max-w-3xl text-5xl font-medium leading-[.92] text-[#f0f2ed] md:text-7xl">I BUILD SYSTEMS<br/>THAT <span className="text-[#b8f35c]">LEARN.</span></h1><p className="hero-enter delay-3 mt-6 text-lg text-slate-300 md:text-xl">{PROFILE.title}</p><p className="hero-enter delay-3 mt-3 max-w-xl text-sm leading-7 text-slate-400 md:text-base">{PROFILE.tagline}</p><div className="hero-enter delay-4 mt-8 flex flex-wrap gap-3"><a href="#projects" className="depth-button bg-[#b8f35c] px-5 py-3 text-sm font-semibold text-[#080b10]">Explore experiments →</a><a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer" className="depth-button depth-button-quiet border border-[#26313e] px-5 py-3 text-sm text-slate-200">GitHub ↗</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="depth-button depth-button-quiet border border-[#26313e] px-5 py-3 text-sm text-slate-200">LinkedIn ↗</a></div></div><TiltCard max={4} className="pipeline-console hero-enter delay-2"><div className="pipeline-header"><span>ML_RUNTIME / V1.0</span><span>STATUS / ACTIVE</span></div><div className="processor-core" aria-hidden="true"><i/><i/><i/><span>∑</span></div><div className="architecture" aria-label="Machine learning processing pipeline">{stages.map(([number, name, detail], i) => <div key={name} className={`architecture-stage stage-${i}`}><b>{number}</b><span>{name}<small>{detail}</small></span>{i < 3 && <i/>}</div>)}</div><div className="profile-device"><div className="device-back">ID / {PROFILE.name}<br/>FOCUS / ML SYSTEMS</div><div className="device-middle">VASI KHAN <span>ML ENGINEER</span></div><div className="device-front relative"><Image src="/profile.png" alt={PROFILE.name} fill priority sizes="(max-width:1024px) 80vw, 300px" className="object-cover"/></div></div></TiltCard></div></section>; }
+﻿import { PROFILE, GITHUB_USERNAME, LINKEDIN_URL } from "@/config/config";
+import NeuralExperience from "@/components/NeuralExperience";
+
+export default function Hero() {
+  return (
+    <section id="home" className="hero district">
+      <div className="hero-coordinate mono" aria-hidden="true">PORTFOLIO / VASI KHAN <span>EST. 2026 — INDIA</span></div>
+      <div className="hero-layout">
+        <div className="hero-copy">
+          <p className="eyebrow hero-enter"><span className="status-dot" /> MACHINE LEARNING ENGINEER</p>
+          <h1 className="hero-enter delay-1">Engineering<br />intelligence.<br /><span className="gradient-text">Building tomorrow.</span></h1>
+          <p className="hero-name hero-enter delay-2">Hello, I’m <strong>{PROFILE.name}.</strong></p>
+          <p className="hero-description hero-enter delay-2">Turning complex data into real-world possibilities.<br className="desktop-break" /> Exploring the intersection of machine learning,<br className="desktop-break" /> thoughtful engineering, and what comes next.</p>
+          <div className="hero-actions hero-enter delay-3">
+            <a href="#projects" className="button button-primary">Explore my work <span aria-hidden="true">↗</span></a>
+            <a href="#contact" className="button button-secondary">Let’s connect <span aria-hidden="true">↗</span></a>
+          </div>
+          <div className="hero-socials mono hero-enter delay-3"><span>FIND ME ON</span><a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer">GITHUB ↗</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LINKEDIN ↗</a></div>
+        </div>
+        <NeuralExperience />
+      </div>
+      <div className="hero-bottom mono"><a href="#about"><span className="scroll-indicator" aria-hidden="true" /> SCROLL TO EXPLORE</a><span>A LITTLE CURIOSITY. A LOT OF POSSIBILITIES.</span><span className="hero-sector">SECTOR 01 / 06</span></div>
+    </section>
+  );
+}

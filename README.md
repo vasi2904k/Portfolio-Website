@@ -1,82 +1,57 @@
-# 🚀 Premium AI/ML Engineer Portfolio Template
+﻿# Mohammed Vasi Khan — Neural Portfolio
 
-A stunning, high-performance portfolio template built specifically for AI, Machine Learning, and Data Science professionals. Built with Next.js App Router, Tailwind CSS, and Framer Motion.
+A portfolio explored as a living 3D graph. The graph is the navigation: selecting a neuron expands its branch, moves the camera, and reveals the selected node's story in a connected output panel. There are no stacked webpage sections or primary navigation menu.
 
-## ✨ Features
-- **Neural Network Aesthetics**: Includes a beautiful 3D glowing neural brain visual, an interactive mouse spotlight, and an animated data grid background.
-- **Live GitHub Integration**: Automatically fetches and displays your actual public GitHub repositories.
-- **AI Chatbot**: A built-in AI assistant interface that can answer questions about your experience.
-- **Zero-Code Customization**: Everything (name, links, skills, experience) is controlled from a single configuration file!
+## Run
 
----
+```sh
+npm install
+npm run dev
+```
 
-## 🛠️ How to Customize (Zero Coding Required!)
+Open http://localhost:3000. A regular production deployment uses `npm run build` followed by `npm start`.
 
-If you want to use this template for yourself, you **do not** need to know how to code. All of the text, links, and project data are stored in one single file.
+## Explore
 
-1. Open the project folder.
-2. Navigate to `src/config/config.js` and open it in any text editor (like Notepad or VS Code).
-3. Change the details! You will see clear sections for:
-   - `GITHUB_USERNAME`: Change this to your exact GitHub username to automatically load your repos in the Projects section.
-   - `LINKEDIN_URL` & `EMAIL`: Add your contact info.
-   - `PROFILE`: Update the name, title, and tagline shown at the top of the page.
-   - `experienceData`: Update the companies, roles, and dates you worked there.
-   - `PROJECT_IMAGES`: Map your repository names to custom cover images you put in the `/public` folder.
-4. Save the file. The website will automatically update with your new information!
+- Click or tap a neuron to reveal its immediate children and connected content.
+- Scroll over the graph, or swipe vertically, to travel through its revealed connections.
+- Use arrow keys or Page Up / Page Down to move through the graph. Tab and Enter focus and select the visible graph nodes.
+- Escape or the curved arrow returns to the previous visited node. Home or the origin control collapses the graph and resets exploration.
+- Scroll within the output panel to read long content without moving the camera.
+- The pause control stops ambient motion while keeping intentional navigation available. Lite mode reduces rendering cost.
 
-## 🖼️ Update Your Profile Photo
+Mouse hover softly highlights neurons and adjacent connections. Branch animations grow each connection outward before revealing the child, with staggered timing. GSAP camera transitions are cancelled and replaced on new selections. The camera maintains a stable horizon and a bounded amount of pointer parallax.
 
-If you want to replace the profile picture shown on the homepage:
+## Architecture
 
-1. Put your image file inside the `public` folder.
-2. Name it `profile.png` so the site can load it automatically.
-3. If you want to use a different file name, update the image path in `src/components/Hero.jsx`.
-4. Refresh the site after saving your changes.
+The Next.js page loads public GitHub repository data, then passes it to the client-side graph. `src/data/neuralGraph.js` provides hierarchical content. `src/utils/graphModel.mjs` compiles deterministic XYZ positions and provides the pure navigation reducer. Components under `src/components/neural` render nodes, edges, signals, and content; hooks under `src/hooks` connect navigation and camera animation.
 
-For example, the current profile image is loaded from `public/profile.png`.
+See `docs/neural-interface-architecture.md` for the structure, state contract, and eight implementation milestones.
 
----
+## Customize
 
-## 💻 How to Run Locally
+- Profile/contact information, featured repository order, images, and experience: `src/config/config.js`.
+- Hierarchy, node content, and skill branches: `src/data/neuralGraph.js`.
+- Visual theme, output-panel layouts, and responsive rules: `src/app/globals.css`.
+- Graph layout and navigation behavior: `src/utils/graphModel.mjs`.
+- Responsive camera framing: `src/utils/cameraFrame.mjs`.
+- Portrait: `public/profile.png`; social preview: `public/og.png`.
 
-To test the website on your own computer, you just need Node.js installed.
+GitHub data refreshes hourly on the regular Next.js deployment and uses a local fallback if unavailable. All configured featured projects remain available even when fallback metadata is incomplete. `GITHUB_TOKEN` is optional and server-side only. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment origin; Vercel's production project URL is also supported.
 
-1. Open your terminal or command prompt.
-2. Navigate into this project folder:
-   ```bash
-   cd C:\Users\dell\Desktop\portfolio
-   ```
-3. Install the required dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the local development server:
-   ```bash
-   npm run dev
-   ```
-5. Open your browser and go to `http://localhost:3000` to see your portfolio.
+## Performance and fallback
 
-If you want to run the production version instead:
+The Three.js scene loads separately from the content shell. Signals use instancing, node geometry is shared, and connections use lightweight line geometry. The scene avoids postprocessing and shadow maps. Rendering density is capped at 1 on touch devices and 1.5 on desktop, with an automatic reduction on slow rendering.
 
-1. Build the app:
-   ```bash
-   npm run build
-   ```
-2. Start the production server:
-   ```bash
-   npm run start
-   ```
+Hidden tabs, paused ambient motion, and system reduced-motion preferences stop continuous rendering. GSAP requests frames only while intentional camera/branch transitions need them. Reduced motion completes these transitions immediately. On WebGL failure or context loss, a projected interactive graph preserves branch navigation and content. Enable JavaScript for graph interaction; the no-script notice retains a contact link.
 
-If Node.js is not installed, install the latest LTS version first, then repeat the steps above.
+## Checks
 
----
+```sh
+node --test tests/graphModel.test.mjs
+npm run build
+```
 
-## 🌍 How to Deploy (Host for Free)
+The graph suite checks progressive visibility, hidden-node rejection, idempotent expansion, navigation history, rapid transitions, reset generations, complete content reachability, and Three.js camera projections at eight desktop/mobile viewport sizes. Browser interaction and actual device frame-rate checks are separate and were unavailable in this environment.
 
-The easiest and fastest way to get your portfolio live on the internet is using **Vercel** (the creators of Next.js).
-
-1. Upload/Push this code to your own GitHub repository.
-2. Go to [Vercel.com](https://vercel.com/) and sign up with your GitHub account.
-3. Click **"Add New Project"** and select your portfolio repository.
-4. *(Optional)*: Before clicking Deploy, expand the "Environment Variables" section to add a `GITHUB_TOKEN` (if you want higher API limits for fetching projects) or a `GEMINI_API_KEY` (if you connect the chatbot to an external API).
-5. Click **Deploy**. In about 2 minutes, Vercel will give you a live, fast URL that you can put on your resume!
+`NEXT_DIST_DIR=.next-build` keeps a regular validation build separate from a development preview. With `NEXT_STATIC_EXPORT=1`, Next.js exports a static preview into the selected directory; its GitHub data is a publication-time snapshot. The hosted preview preserves the normal Next.js source architecture.

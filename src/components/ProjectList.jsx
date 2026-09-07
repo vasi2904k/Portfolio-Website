@@ -1,15 +1,37 @@
-"use client";
-import { useEffect, useState } from "react";
+﻿"use client";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import TiltCard from "@/components/TiltCard";
 import ProjectShare from "@/components/ProjectShare";
-import { PROJECT_IMAGES, GITHUB_USERNAME } from "@/config/config";
-import useIsMobile from "@/utils/useIsMobile";
-const normal = (v) => (v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const imageFor = (name) => PROJECT_IMAGES[name] || Object.entries(PROJECT_IMAGES).find(([key]) => normal(key) === normal(name))?.[1];
-function ProjectImage({ src, alt }) { const [loaded, setLoaded] = useState(false); if (!src) return <div className="flex h-full items-center justify-center p-4 font-mono text-xs text-slate-500">PREVIEW_UNAVAILABLE</div>; return <Image src={src} alt={alt} fill sizes="(max-width: 768px) 100vw, 190px" onLoad={() => setLoaded(true)} className={`project-image object-cover ${loaded ? "is-loaded" : ""}`} />; }
+import { PROJECT_IMAGES, FEATURED_PROJECTS } from "@/config/config";
+
+const normal = (value) => (value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const categoryFor = (name) => /analysis|eda|ecommerce|pollution|imdb/i.test(name) ? "Data analysis" : /portfolio|website|readme|vasi2904k/i.test(name) ? "Web & tools" : "Machine learning";
+const displayName = (name) => ({ "ecommercesales": "E-commerce Sales Analysis", "agrolensai": "AgroLens AI", "globalpollutionanalysis": "Global Pollution Analysis", "portfoliowebsite": "The Neural Portfolio", "fooddeliverytimeprediction": "Food Delivery Prediction", "decisiontreeregression": "Decision Tree Regression", "admissionpredictionlinearregression": "Admission Prediction", "imdbmovieeda": "IMDb Movie Analysis" }[normal(name)] || name.replace(/[-_]/g, " "));
+const descriptionFor = (repo) => normal(repo.name) === "ecommercesales" ? "Exploring e-commerce sales data through cleaning, feature engineering, and visualization to uncover useful patterns." : repo.description || "An engineering experiment exploring practical tools, reproducible workflows, and new ideas.";
+const categories = ["All projects", "Machine learning", "Data analysis", "Web & tools"];
+function ProjectImage({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <div className="project-placeholder" aria-hidden="true"><i /><i /><i /><span>ƒ(x)</span></div>;
+  return <Image src={src} alt={alt} fill sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 30vw" className="project-image" onError={() => setFailed(true)} />;
+}
 export default function ProjectList({ repos }) {
- const [all,setAll]=useState(false); const mobile=useIsMobile(); const [count,setCount]=useState(3); useEffect(()=>setCount(mobile?2:3),[mobile]); const visible=all?repos:repos.slice(0,count);
- return <><div className="mt-8 grid gap-6">{visible.map((repo,index)=>{const image=imageFor(repo.name); return <Reveal key={repo.id} delay={(index%3)*80}><TiltCard max={5}><article className="project-record surface relative overflow-hidden p-4 md:grid md:grid-cols-[190px_1fr] md:gap-6 md:p-5"><div className="project-cover relative mb-5 aspect-[16/10] border border-[#26313e] bg-[#101722] md:mb-0"><ProjectImage src={image} alt={`${repo.name} project preview`} /></div><div><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="record-label technical-label">EXPERIMENT_{String(index+1).padStart(2,"0")}</p><h3 className="record-title mt-2 text-2xl font-medium text-[#f0f2ed]">{repo.name}</h3></div><span className="record-label border border-[#26313e] px-2 py-1 font-mono text-[10px] text-slate-400">STATUS / ACTIVE</span></div><p className="record-copy mt-3 max-w-2xl text-sm leading-6 text-slate-400">{repo.description || "An in-progress machine learning experiment and engineering record."}</p><div className="pipeline mt-5 flex items-center gap-2 font-mono text-[10px] tracking-[.12em] text-slate-400"><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">DATA</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">PROCESS</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">MODEL</span><i className="pipeline-link"/><span className="pipeline-node border border-[#b8f35c] px-2 py-1 text-[#b8f35c]">OUTPUT</span></div><div className="record-meta mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-[#26313e] pt-4 text-xs text-slate-500"><span>{repo.language || "ML / DATA"}</span><span>UPDATED {new Date(repo.updated_at).toISOString().slice(0,10)}</span><a className="ml-auto font-medium text-[#b8f35c] hover:underline" href={repo.html_url} target="_blank" rel="noreferrer">EXPLORE CASE STUDY <span className="project-arrow">→</span></a><ProjectShare repo={repo}/></div></div></article></TiltCard></Reveal>;})}</div>{repos.length>count&&<div className="mt-8 flex flex-wrap items-center gap-5"><button onClick={()=>setAll(!all)} className="border border-[#26313e] px-5 py-3 text-sm text-slate-200 transition-colors hover:border-[#b8f35c]">{all?"Collapse records":`Load all ${repos.length} records`}</button><a className="text-sm text-slate-500 hover:text-[#b8f35c]" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer">View GitHub profile ↗</a></div>}</>;
+  const [category, setCategory] = useState("All projects"), [query, setQuery] = useState(""), [all, setAll] = useState(false);
+  const sorted = useMemo(() => [...repos].sort((a, b) => {
+    const ai = FEATURED_PROJECTS.findIndex((name) => normal(name) === normal(a.name));
+    const bi = FEATURED_PROJECTS.findIndex((name) => normal(name) === normal(b.name));
+    return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || new Date(b.updated_at) - new Date(a.updated_at);
+  }), [repos]);
+  const filtered = sorted.filter((repo) => (category === "All projects" || categoryFor(repo.name) === category) && `${repo.name} ${repo.description || ""} ${repo.language || ""}`.toLowerCase().includes(query.toLowerCase().trim()));
+  const visible = all ? filtered : filtered.slice(0, 6);
+  return <><div className="project-toolbar"><div className="project-filters" aria-label="Filter projects by category">{categories.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => { setCategory(item); setAll(false); }}>{item}{item === "All projects" && <span>{repos.length.toString().padStart(2, "0")}</span>}</button>)}</div><label className="project-search"><span className="sr-only">Search projects</span><input type="search" placeholder="Search projects…" value={query} onChange={(event) => { setQuery(event.target.value); setAll(false); }} /><span aria-hidden="true">⌕</span></label></div>
+    <p className="sr-only" role="status">{filtered.length} matching projects</p>
+    <div className="project-grid">{visible.map((repo, index) => {
+      const image = PROJECT_IMAGES[repo.name] || Object.entries(PROJECT_IMAGES).find(([key]) => normal(key) === normal(repo.name))?.[1];
+      return <Reveal key={repo.id} delay={(index % 3) * 70}><TiltCard max={3}><article className="project-card"><div className="project-cover"><ProjectImage src={image} alt={`${displayName(repo.name)} project preview`} /><span className="project-number mono">EXPERIMENT / {String(sorted.indexOf(repo) + 1).padStart(2, "0")}</span><a className="project-open" href={repo.html_url} target="_blank" rel="noreferrer" aria-label={`Open ${displayName(repo.name)} on GitHub`}>↗</a></div><div className="project-body"><p className="project-category mono"><span className="status-dot" />{categoryFor(repo.name)}</p><h3><a href={repo.html_url} target="_blank" rel="noreferrer">{displayName(repo.name)}</a></h3><p className="project-description">{descriptionFor(repo)}</p><div className="project-tags"><span>{repo.language || "Engineering"}</span>{repo.topics?.slice(0, 2).map((topic) => <span key={topic}>{topic}</span>)}</div><div className="project-footer"><a href={repo.html_url} target="_blank" rel="noreferrer" className="text-link">View project <span aria-hidden="true">↗</span></a><ProjectShare repo={repo} /></div></div></article></TiltCard></Reveal>;
+    })}</div>
+    {filtered.length === 0 && <div className="project-empty"><p>No projects match this search.</p><button type="button" className="text-link" onClick={() => { setQuery(""); setCategory("All projects"); }}>Clear filters ↗</button></div>}
+    {filtered.length > 6 && <div className="project-more"><button type="button" className="button button-secondary" onClick={(event) => { setAll(!all); if (all) { document.getElementById("projects")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }); event.currentTarget.blur(); } }}>{all ? "Show selected projects" : `Explore all ${filtered.length} projects`} <span aria-hidden="true">{all ? "−" : "+"}</span></button></div>}
+  </>;
 }

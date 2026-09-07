@@ -1,57 +1,19 @@
-import { GITHUB_USERNAME } from "@/config/config";
+﻿import { GITHUB_USERNAME } from "@/config/config";
 import SectionTitle from "@/components/SectionTitle";
 import ProjectList from "@/components/ProjectList";
 import fallbackRepos from "@/data/fallbackRepos.json";
 
 async function fetchRepos() {
   const headers = { Accept: "application/vnd.github+json" };
-  if (process.env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  }
-
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   try {
-    const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`, {
-      headers,
-      next: { revalidate: 3600 }
-    });
-
-    if (!response.ok) {
-      console.warn("GitHub API rate limit or error, using fallback data.");
-      return fallbackRepos;
-    }
-
+    const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`, { headers, next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) });
+    if (!response.ok) return fallbackRepos;
     const repos = await response.json();
-    if (!Array.isArray(repos)) {
-      console.warn("Unexpected GitHub API format, using fallback data.");
-      return fallbackRepos;
-    }
-    return repos;
-  } catch (error) {
-    console.warn("Failed to fetch from GitHub, using fallback data:", error);
-    return fallbackRepos;
-  }
+    return Array.isArray(repos) ? repos : fallbackRepos;
+  } catch { return fallbackRepos; }
 }
-
 export default async function Projects() {
-  const repos = await fetchRepos();
-  // Filter out private repos, then sort: newest created first, then by stars, then by most recently updated
-  const allRepos = [...repos].filter(repo => !repo.private).sort((a, b) => {
-    const createdDiff = new Date(b.created_at) - new Date(a.created_at);
-    if (createdDiff !== 0) return createdDiff;
-    const starsDiff = b.stargazers_count - a.stargazers_count;
-    if (starsDiff !== 0) return starsDiff;
-    return new Date(b.updated_at) - new Date(a.updated_at);
-  });
-
-  return (
-    <section id="projects" className="pt-20">
-      <SectionTitle
-        eyebrow="Live GitHub"
-        title="All GitHub Repositories"
-        description="A showcase of my recent machine learning projects and experiments."
-      />
-
-      <ProjectList repos={allRepos} />
-    </section>
-  );
+  const repos = (await fetchRepos()).filter((repo) => !repo.private);
+  return <section id="projects" className="content-section"><SectionTitle eyebrow="02 / SELECTED WORK" title={<>Ideas, trained<br /><span className="muted-heading">for the real world.</span></>} description="A collection of experiments, intelligent systems, and problems worth solving."><a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer" className="text-link">Explore GitHub <span aria-hidden="true">↗</span></a></SectionTitle><ProjectList repos={repos} /></section>;
 }

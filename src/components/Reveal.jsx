@@ -1,7 +1,16 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
+﻿"use client";
+import { useEffect, useRef } from "react";
 export default function Reveal({ children, className = "", delay = 0 }) {
-  const ref = useRef(null); const [visible, setVisible] = useState(false);
-  useEffect(() => { const node = ref.current; if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setVisible(true); return; } const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.unobserve(entry.target); } }, { threshold: 0.12, rootMargin: "0px 0px -6%" }); observer.observe(node); return () => observer.disconnect(); }, []);
-  return <div ref={ref} className={`reveal ${visible ? "is-visible" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
+  const ref = useRef(null);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Content is visible without JavaScript; only offscreen elements opt into reveal.
+    if (node.getBoundingClientRect().top < window.innerHeight) return;
+    node.classList.add("reveal-pending");
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { node.classList.remove("reveal-pending"); observer.unobserve(node); } }, { threshold: .06 });
+    observer.observe(node);
+    return () => { observer.disconnect(); node.classList.remove("reveal-pending"); };
+  }, []);
+  return <div ref={ref} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
 }

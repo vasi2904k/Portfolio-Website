@@ -1,51 +1,15 @@
+﻿"use client";
+import { useEffect, useRef, useState } from "react";
 import { EMAIL, GITHUB_USERNAME, LINKEDIN_URL } from "@/config/config";
-import SectionTitle from "@/components/SectionTitle";
 import Reveal from "@/components/Reveal";
-
 export default function Contact() {
-  return (
-    <section id="contact" className="pt-20 pb-8">
-      <SectionTitle
-        eyebrow="Contact"
-        title="Let’s Build Intelligent Systems Together"
-        description="Open to impactful AI engineering opportunities, ML collaborations, and portfolio conversations."
-      />
-
-      <Reveal>
-        <div className="surface grid gap-4 p-4 md:grid-cols-3 md:p-6">
-          <a
-            href={`mailto:${EMAIL}`}
-            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Email</p>
-            <p className="mt-2 text-sm text-white">{EMAIL}</p>
-          </a>
-
-          <a
-            href={`https://github.com/${GITHUB_USERNAME}`}
-            target="_blank"
-            rel="noreferrer"
-            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">GitHub</p>
-            <p className="mt-2 text-sm text-white">github.com/{GITHUB_USERNAME}</p>
-          </a>
-
-          <a
-            href={LINKEDIN_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="border border-[#26313e] bg-[#080b10] p-4 transition hover:border-[#b8f35c]"
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">LinkedIn</p>
-            <p className="mt-2 text-sm text-white">mohammed-vasi-khan</p>
-          </a>
-        </div>
-
-        <div className="mt-16 text-center text-sm text-slate-500">
-          Built by Mohammed Vasi Khan
-        </div>
-      </Reveal>
-    </section>
-  );
+  const [copyState, setCopyState] = useState("Copy email");
+  const timer = useRef();
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const copyEmail = async () => {
+    try { await navigator.clipboard.writeText(EMAIL); setCopyState("Email copied"); }
+    catch { setCopyState("Please select the email to copy"); }
+    clearTimeout(timer.current); timer.current = setTimeout(() => setCopyState("Copy email"), 3000);
+  };
+  return <><section id="contact" className="content-section contact-section"><Reveal><div className="contact-panel"><div className="contact-network" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div><p className="eyebrow"><span className="status-dot" /> 06 / THE NEXT CONNECTION</p><h2>Great things start<br />with a <span className="gradient-text">connection.</span></h2><p className="contact-description">Have an interesting problem, an idea worth exploring,<br className="desktop-break" /> or an opportunity to build something meaningful? Let’s talk.</p><div className="contact-actions"><a className="button button-primary" href={`mailto:${EMAIL}`}>Start a conversation <span aria-hidden="true">↗</span></a><button type="button" className="copy-email" onClick={copyEmail} aria-live="polite">{copyState} <span aria-hidden="true">⧉</span></button></div><a className="contact-email" href={`mailto:${EMAIL}`}>{EMAIL}</a><div className="contact-socials mono"><a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noreferrer">GITHUB ↗</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LINKEDIN ↗</a><span><span className="status-dot" /> OPEN TO IDEAS & OPPORTUNITIES</span></div></div></Reveal></section><footer className="site-footer"><a href="#home" className="brand"><span className="brand-symbol" aria-hidden="true">V<span>.</span></span><span>VASI KHAN</span></a><p className="mono">© {new Date().getFullYear()} MOHAMMED VASI KHAN <span>BUILT WITH CURIOSITY.</span></p><a href="#home" className="back-top mono">BACK TO TOP ↑</a></footer></>;
 }
