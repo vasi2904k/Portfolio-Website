@@ -1,40 +1,59 @@
-﻿# Neural interface architecture
+# Neural interface architecture
 
-The neural graph is the application surface. The page hosts one fixed 3D viewport; portfolio content emerges in an output panel attached to the selected graph node. There are no scrollable page sections or conventional navigation menus.
+The neural graph remains the primary UI. Existing content, hierarchy, typography, and connected story panel are retained.
 
-## Structure
+## Diagnosis and control choice
 
-- `src/data/neuralGraph.js`: portfolio content and hierarchical relationships; imports the existing profile/config and repository records.
-- `src/utils/graphModel.mjs`: deterministic XYZ layout, graph indexes, visible/expanded states, traversal, and navigation reducer. Pure functions, independently testable.
-- `src/hooks/useNeuralNetwork.js`: React bridge for selection, expansion, history, forward/back traversal, and reset.
-- `src/hooks/useCameraAnimation.js`: cancellable GSAP camera interpolation, bounded pointer parallax, and responsive framing.
-- `src/components/neural/NeuralNetwork.jsx`: viewport, input routing, quality/motion preferences, and WebGL fallback.
-- `src/components/neural/NeuralScene.jsx`: R3F Canvas, shared resources, camera, and graph composition.
-- `src/components/neural/NeuralNode.jsx`: glowing 3D neuron, accessible projected label, hover/selection feedback.
-- `src/components/neural/NeuralConnection.jsx`: outward-growing connection paths.
-- `src/components/neural/NeuralParticles.jsx`: batched traveling signals and restrained ambient particles.
-- `src/components/neural/ContentOutput.jsx`: selected node content, accessible actions, and a projected tether.
-- `tests/graphModel.test.mjs`: graph/navigation invariant checks.
+The active route uses components/neural/NeuralNetwork; the older NeuralExperience and NeuralCanvas are not mounted. The guided state machine already prevented arbitrary pathway travel, but its camera hook wrote a fixed pose each frame. An orbit controller added alongside it would be overwritten. Wheel input only traveled; the single-pointer mobile handler had no native pinch or pan. The background was a sparse point field without branching tissue.
 
-## State and animation contract
+OrbitControls now owns normal exploration, and GSAP temporarily owns the camera during focus. ArcballControls was considered against its documented touch/focus behavior. OrbitControls was selected because direct polar/azimuth limits, target-radius limits, damping, and combined touch dolly/pan fit the requirement for bounded exploration and a stable horizon. Node-aware focus remains in the application so it participates in navigation transactions.
 
-Initial visibility is root plus five primary branches. An expanded parent reveals only immediate children. Selection and expansion are independent flags; a node can be both. Visual state derives from visibility, spawn readiness, selection, expansion, and hover. New connections grow from parent to child; child visibility/hit targets follow the connection tip. GSAP timelines are cancelled on cleanup and callbacks must match the current expansion generation. Camera animations are replaced by the latest selection, never queued.
+Official references: https://threejs.org/docs/pages/OrbitControls.html and https://threejs.org/docs/pages/ArcballControls.html.
 
-Navigation uses stable node IDs. A dynamically expanded depth-first traversal powers wheel, swipe, and next/previous controls. Internal back history is distinct from graph ancestry. Reset restores the collapsed initial network and clears in-flight input. Wheel events inside content panels remain normal panel scrolling. Browser zoom modifiers are preserved.
+## State contract
 
-## Incremental milestones
+The pure graphModel.mjs reducer owns currentNode, selectedNode, parentNode, activePath, expandedNodes, readyNodes, cameraTarget, cameraPosition, navigationDepth, isAnimating, phase, and revision. hoveredNode and focusedNode distinguish mouse and keyboard focus. contentNode retains the last completed output during a transition; visited preserves exploration progress.
 
-1. Working fullscreen scene: six nodes, camera, lighting, depth, and animated connections.
-2. Accessible node hover and selection.
-3. Data-driven branch expansion and navigation reducer.
-4. Staggered edge growth followed by node spawning.
-5. Responsive, interruptible camera framing and subtle parallax.
-6. Scroll/swipe traversal, history, reset, and keyboard input.
-7. Bounded instanced signals constrained to revealed edges.
-8. Connected output panels with the existing real portfolio content.
+Flow: IDLE / HOVER ? SELECT (or BACK) ? CAMERA_FOCUS ? EXPAND_BRANCH ? CONTENT_VIEW.
 
-Each milestone extends the working scene. Reduced motion completes intentional navigation immediately; it does not disable exploration. WebGL failure retains the same branch-based navigation in a projected graph. Rendering density and particle counts adapt to the device, and ambient animation stops in hidden tabs.
+Navigation rejects conflicting input until camera focus and staggered expansion complete. Each edge grows before its child appears. Revision checks discard callbacks belonging to an interrupted transition. Recenter is the deliberate exception: it can interrupt focus or expansion, keeps the active path, and completes any pending branch reveal after recovery. Reduced motion and the non-WebGL fallback use the same transaction.
 
-## Implementation record
+Camera pose snapshots are debounced after movement instead of causing a React render every frame. They never determine graph location. Back uses ancestry and collapses abandoned descendants; Root preserves visited progress.
 
-All eight milestones are implemented. Phase 1 was compiled and served successfully before the branch, camera, input, signal, and output phases were added. The final graph model and camera projections have an automated 18-case test suite. A source review covered React event readiness, interrupted animation cleanup, WebGL recovery, visible keyboard focus, output reset, and aligned responsive breakpoints. Browser visual/interaction testing was unavailable; hardware frame rates have not been measured.
+## Input ownership
+
+- Desktop left drag orbits. Wheel zooms by default; TRAVEL switches it to pathway steps. Shift + wheel temporarily travels. Ctrl-wheel trackpad pinch always zooms the scene. Browser keyboard zoom remains native.
+- Mobile one-finger drag orbits in EXPLORE. TRAVEL reserves a vertical swipe for pathway navigation. Pinch and two-finger drag zoom/pan in either mode.
+- A capture-phase wheel router prevents the native controller and pathway handler from consuming the same event. Zoom targets accumulate into a short eased tween; travel needs a 90-pixel threshold and a 240 ms quiet gap between bursts. Events received while locked consume their burst.
+- useSceneGestures separates pointer-up activation from drag, multi-touch, and cancellation. Taps permit at most 10 px travel and 650 ms. Swipes need 64 px vertical travel, a 1.4 direction ratio, and less than 1000 ms. Double activation uses a 320 ms interval; it cancels the pending single activation.
+- OrbitControls captures pointers on the viewport, including projected HTML labels. Activation records the original label/mesh hit before capture so dragging from a neuron cannot accidentally activate it.
+- Arrow keys focus available neurons; Enter selects; Escape goes Back; Home returns to Root; R recenters; + / ? zoom; Page Up/Down travel.
+- Content retains native scrolling. Scene touch-action is none; content supports pan-y. Help and Map suspend scene input and return focus when closed.
+
+## Camera and responsive labels
+
+OrbitControls owns ordinary camera motion. Distance is limited relative to the fitted branch, azimuth and polar limits prevent flipping, and panning stays within 2 world units on touch / 3 on desktop (or less for a small branch). Camera recovery checks the projected active neuron periodically; Recenter restores a useful distance and upright orientation.
+
+The active neuron's world position is the orbit target. PerspectiveCamera.setViewOffset reserves space for the connected story panel without orbiting an artificial offset target. cameraFrame.mjs shares the usable graph rectangle with the label layout. Resizing and opening a mobile story reframe through a fresh camera transaction.
+
+nodeLabels.mjs resolves label collisions in screen space. Labels keep a minimum 44 px tap width and 54 px layout height, with leader lines back to the actual neurons. Mobile cores are enlarged. Only current/child labels take keyboard focus; surrounding branches remain visible as dimmed context.
+
+On portrait mobile, READ STORY expands content. Leaf stories open automatically; closing a branch story restores child labels and graph space. Landscape uses the side panel with touch controls. The accessible Map and projected fallback share the same graph state.
+
+## Living environment
+
+neuralEnvironment.mjs generates deterministic world-space geometry: a distant ellipsoidal neural field, two loose hemispheres of dendritic tissue, connecting axons, dust, and fog volumes. The middle layer recursively forks curved fibers. Mobile tissue has a narrower spatial distribution so reduced counts still surround the graph.
+
+NeuralEnvironment.jsx renders the distant field using points and batched lines. All dendrites share one BufferGeometry and shader; bodies/halos and fixed signal pools use InstancedMesh. A shared phase produces subtle matching sway in fibers, bodies, and signals. Activation briefly boosts nearby tissue and directs part of the signal pool to nearby paths. The environment has no interactive raycasts.
+
+Fog is a set of actual instanced spherical volumes. A shader intersects the view ray with each sphere and samples three-dimensional noise six times through the volume. This provides depth-dependent density without a fullscreen postprocessing chain. All layers move with world-space parallax when the camera orbits, pans, or zooms.
+
+neuralPalette.mjs supplies green and blue/silver palettes and three quality presets. Background colors/opacity stay subdued; foreground connections are sharper, and selected nodes receive the strongest emphasis. Mobile/Lite lower dendrite depth, cluster/particle/signal/fog counts and pixel density. Buffers and Three.js scratch objects are reused; listeners, tweens, timers and geometry are cleaned up. Paused/hidden/reduced-motion views use demand rendering; intentional controls invalidate frames as needed.
+
+## Validation
+
+npm test checks state sequencing, emergency recovery, pose invariants, actual OrbitControls limits, full content reachability, wheel momentum, touch classification, deterministic finite environment geometry, and framing/label collisions at nine viewport sizes.
+
+npm run test:browser covers the live DOM/WebGL integration in Chrome, Firefox, an Android Chrome profile, and an iPhone WebKit profile. Coverage includes branch/Back/Root/breadcrumb navigation, mouse orbit and wheel routing, double activation, emergency Recenter, reduced motion, palette changes, accessible Map, context-loss fallback, and native Chromium multi-touch rotation/pinch/pan/swipe. Background shader errors and excessive draw calls are checked during branch exploration.
+
+Mobile profiles are emulation. Physical Android/iOS hardware, installed mobile Safari, real trackpad hardware, VoiceOver/TalkBack, and hardware frame-rate measurements require manual device validation. Synthetic wheel input and native Chromium touch injection verify routing but cannot reproduce every hardware event cadence.

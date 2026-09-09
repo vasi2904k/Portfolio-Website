@@ -2,6 +2,16 @@ import { PROFILE, EMAIL, GITHUB_USERNAME, LINKEDIN_URL, FEATURED_PROJECTS, PROJE
 const normal = (value) => (value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const names = { ecommercesales: "E-commerce analysis", globalpollutionanalysis: "Global pollution", portfoliowebsite: "Neural portfolio", agrolensai: "AgroLens AI", fooddeliverytimeprediction: "Delivery prediction", decisiontreeregression: "Decision trees", admissionpredictionlinearregression: "Admission prediction", imdbmovieeda: "IMDb analysis" };
 const tool = (id, label, summary, tags = []) => ({ id, label, kind: "skill", eyebrow: "TOOLKIT / CONNECTION", title: label, summary, tags });
+function groupArchive(collections, level = 0) {
+  if (collections.length <= 6) return collections;
+  const groups = Array.from({ length: Math.ceil(collections.length / 6) }, (_, index) => ({
+    id: `archive-hub-${level}-${index}`, label: `Archive branch ${index + 1}`,
+    kind: "branch", title: `Repository archive / branch ${index + 1}`,
+    summary: "Follow a connection to explore these repository collections.",
+    children: collections.slice(index * 6, index * 6 + 6),
+  }));
+  return groupArchive(groups, level + 1);
+}
 function projectNode(repo) {
   return { id: `project-${encodeURIComponent(repo.name.toLowerCase())}`, label: names[normal(repo.name)] || repo.name.replace(/[-_]/g, " "), kind: "project", eyebrow: "PROJECT / OPEN EXPERIMENT", title: names[normal(repo.name)] || repo.name.replace(/[-_]/g, " "), summary: repo.description || `Explore the ${repo.name} repository, its implementation, and the ideas behind the work.`, image: PROJECT_IMAGES[repo.name], tags: [repo.language, ...(repo.topics || []).slice(0, 3)].filter(Boolean), actions: [{ label: "Explore repository", href: repo.html_url || `https://github.com/${GITHUB_USERNAME}/${repo.name}` }, ...(repo.homepage && /^https?:\/\//.test(repo.homepage) ? [{ label: "Open live project", href: repo.homepage }] : [])] };
 }
@@ -12,7 +22,7 @@ export function createPortfolioGraph(repos = []) {
   return {
     id: "root", label: "VASI KHAN", kind: "root", eyebrow: "MACHINE LEARNING ENGINEER",
     title: "A mind.\nA network.\nPossibilities.", summary: "I’m Mohammed Vasi Khan. I turn complex data into useful systems, and curiosity into real-world experiments.",
-    detail: "This is my portfolio, connected. Choose a neuron or scroll to follow the next connection.",
+    detail: "This is my portfolio, connected. Choose a neuron to explore. Switch to Travel to follow the next connection.",
     children: [
       { id: "about", label: "About", kind: "branch", eyebrow: "01 / THE HUMAN", title: "The human behind\nthe network.", summary: "I’m a machine learning engineer who enjoys connecting data, ideas, and the problems people need solved.", image: "/profile.png", imageType: "portrait", detail: "My path through business, customer experience, and autonomous systems gives me a practical perspective on AI. I care about understanding a problem before choosing the model.", children: [
         { id: "approach", label: "My approach", kind: "story", title: "Understand. Build.\nKeep learning.", summary: "I approach machine learning as an iterative engineering process.", bullets: ["Start with the problem and the people it affects.", "Explore the data and establish a useful baseline.", "Evaluate honestly, document decisions, and improve with every experiment."] },
@@ -39,7 +49,7 @@ export function createPortfolioGraph(repos = []) {
           tool("automation", "Automation", "Connecting repetitive steps into reliable workflows, with attention to inputs, outputs, and failure cases.", ["Workflows", "Python"]),
         ] },
       ] },
-      { id: "projects", label: "Projects", kind: "branch", eyebrow: "03 / THE WORK", title: "Ideas, connected\nto the real world.", summary: "Open experiments in machine learning, data analysis, and engineering. Select a project node to see the work behind it.", children: [...featured.map(projectNode), ...(archiveGroups.length ? [{ id: "archive", label: "More experiments", kind: "branch", title: "The wider archive.", summary: "More public repositories and ideas in progress.", children: archiveGroups }] : [])] },
+      { id: "projects", label: "Projects", kind: "branch", eyebrow: "03 / THE WORK", title: "Ideas, connected\nto the real world.", summary: "Open experiments in machine learning, data analysis, and engineering. Select a project node to see the work behind it.", children: [...featured.map(projectNode), ...(archiveGroups.length ? [{ id: "archive", label: "More experiments", kind: "branch", title: "The wider archive.", summary: "More public repositories and ideas in progress.", children: groupArchive(archiveGroups) }] : [])] },
       { id: "journey", label: "Journey", kind: "branch", eyebrow: "04 / THE PATH", title: "Every experience.\nAnother connection.", summary: "An evolving journey through people, technology, and real-world problem solving.", children: experienceData.map((job, index) => ({ id: `experience-${index}`, label: job.company.split(" (")[0], kind: "experience", eyebrow: job.date, title: job.title, summary: job.company, detail: job.location, bullets: job.description, tags: [job.date.includes("Present") ? "Current" : "Previous"] })) },
       { id: "connect", label: "Connect", kind: "branch", eyebrow: "05 / WHAT COMES NEXT", title: "Great things start\nwith a connection.", summary: "Have an interesting problem, an idea worth exploring, or an opportunity to build something meaningful? Let’s talk.", children: [
         { id: "email", label: "Email", kind: "contact", title: "Start a conversation.", summary: EMAIL, detail: "Open to ML opportunities, engineering conversations, and thoughtful collaborations.", copy: EMAIL, actions: [{ label: "Send an email", href: `mailto:${EMAIL}` }] },

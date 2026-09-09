@@ -1,9 +1,9 @@
 "use client";
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Object3D, AdditiveBlending } from "three";
+import { Object3D } from "three";
 
-export default function NeuralParticles({ connections, runtimes, selectedId, moving, compact }) {
+export default function NeuralParticles({ connections, runtimes, selectedId, moving, compact, palette }) {
   const mesh = useRef(), elapsed = useRef(0);
   const object = useMemo(() => new Object3D(), []);
   const perEdge = compact ? 1 : 2, count = connections.length * perEdge;
@@ -24,17 +24,5 @@ export default function NeuralParticles({ connections, runtimes, selectedId, mov
     mesh.current.instanceMatrix.needsUpdate = true;
   });
   if (!count) return null;
-  return <instancedMesh ref={mesh} args={[null, null, count]} raycast={() => null} frustumCulled={false}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color="#d0f5de" toneMapped={false} /></instancedMesh>;
-}
-
-export function AmbientParticles({ moving, compact }) {
-  const ref = useRef();
-  const points = useMemo(() => {
-    const positions = new Float32Array((compact ? 75 : 170) * 3);
-    let seed = 71;
-    for (let i = 0; i < positions.length; i++) { seed = (seed * 1664525 + 1013904223) >>> 0; positions[i] = (seed / 4294967296 - .5) * (i % 3 === 2 ? 45 : 65); }
-    return positions;
-  }, [compact]);
-  useFrame((_, delta) => { if (moving) ref.current.rotation.y += Math.min(delta, .05) * .003; });
-  return <points ref={ref} raycast={() => null}><bufferGeometry><bufferAttribute attach="attributes-position" count={points.length / 3} array={points} itemSize={3} /></bufferGeometry><pointsMaterial color="#99b4a7" size={.025} transparent opacity={.25} depthWrite={false} blending={AdditiveBlending} /></points>;
+  return <instancedMesh ref={mesh} args={[null, null, count]} raycast={() => null} frustumCulled={false}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color={palette.signal} toneMapped={false} /></instancedMesh>;
 }

@@ -20,7 +20,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible { outline: 1px sol
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
 /* A single spatial interface: graph, connected output, and travel controls. */
-.network-viewport { touch-action: pinch-zoom; }
+.network-viewport { touch-action: pinch-zoom; user-select: none; -webkit-user-select: none; }
 .network-viewport > div:has(canvas) { position: absolute !important; inset: 0; touch-action: pinch-zoom !important; }
 .network-viewport canvas { touch-action: pinch-zoom; outline: none; }
 .is-hovering .network-viewport { cursor: pointer; }
@@ -46,9 +46,171 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible { outline: 1px sol
 @media(prefers-reduced-motion:reduce) { .output-tether > i,.scroll-mark::after,.fallback-edge > span { animation: none; }.output-action,.neuron-label,.output-children button { transition: none; } }
 
 @media(max-width:760px) and (min-height:501px) and (max-height:650px) { .content-output { height: 30dvh; min-height: 160px; } }
+
+/* Guided exploration keeps the graph primary and orientation controls readable. */
+.output-collapsed { height: 64px !important; min-height: 64px !important; }
+.output-collapsed .output-top { height: 64px; font-size: 11px; }
+.story-toggle { min-height: 44px; padding: 0 7px; flex-shrink: 0; background: transparent; border: 0; color: #cee9d8; font: 9px var(--mono); }
+.network-tools button { min-width: 44px; min-height: 44px; }
+.network-brand { min-width: 44px; min-height: 44px; }
+.network-location { top: 88px; flex-wrap: nowrap; gap: 0; overflow-x: auto; scrollbar-width: none; font-size: 10px; color: #9bb3a6; touch-action: pan-x pinch-zoom; }
+.network-location > span { flex: 0 0 auto; }
+.network-location button { min-height: 44px; padding: 8px 3px; }
+.network-location button[aria-current] { color: #e1ffea; box-shadow: inset 0 -1px #b7e4ce; }
+.network-location button:disabled { opacity: .7; }
+.neuron-label { min-width: 44px; min-height: 54px; height: 54px; max-width: 132px; font-size: 11px; padding: 5px; border-radius: 6px; }
+.neuron-label > span { overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.neuron-label small { font-size: 7px; letter-spacing: .02em; }
+.neuron-available small { opacity: .85; max-height: 15px; }
+.neuron-label:hover:enabled,.neuron-hover { background: #14271be6; }
+.neuron-label:disabled { cursor: default; }
+.neuron-selected { background: #122119aa; }
+.network-caption { bottom: 142px; font-size: 8px; }
+.network-bottom { align-items: center; gap: 16px; letter-spacing: .04em; }
+.travel-controls { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+.travel-controls button { width: auto; min-width: 44px; height: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 19px; color: #bed6c8; border: 1px solid #435b4b88; border-radius: 4px; background: #111e18e6; }
+.travel-controls button span { font: 10px var(--mono); white-space: nowrap; }
+.travel-controls button:hover:enabled,.network-orientation-tools button:hover:enabled { color: #e2ffed; border-color: #a4c8b3; background: #1b3024; }
+.travel-hint { margin: 0; display: flex; font: 9px/1.5 var(--mono); color: #b5cabb; pointer-events: none; transition: opacity .4s; }
+.travel-hint small { display: block; font-size: 8px; margin-top: 3px; color: #94ad9c; letter-spacing: .01em; }
+.hint-learned { opacity: .35; }
+.network-orientation-tools { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+.network-orientation-tools button { min-height: 44px; padding: 0 10px; display: flex; gap: 7px; align-items: center; color: #b7cec0; background: #0d1913e6; border: 1px solid #435b4b88; border-radius: 4px; font-size: 16px; }
+.network-orientation-tools button span { font: 9px var(--mono); }
+.network-orientation-tools button small { font: 8px var(--mono); color: #92ae9f; }
+.travel-feedback { position: absolute; z-index: 31; left: 38px; bottom: 91px; max-width: 58%; pointer-events: none; color: #cee9d8; font: 10px/1.6 var(--mono); }
+.is-navigating .network-viewport { cursor: progress; }
+.is-navigating .content-output .output-scroll { opacity: .6; }
+.content-output .output-scroll { transition: opacity .25s; }
+.output-top { font-size: 8px; min-height: 43px; }
+.output-top > span:last-child { flex-shrink: 0; }
+.output-bottom { font-size: 8px; padding: 6px 18px; }
+.output-bottom button { min-height: 44px; font-size: 10px; }
+.output-leaf-note,.branch-status-copy { font-size: 10px; line-height: 1.7; }
+.network-overview { position: absolute; left: 38px; top: 137px; bottom: 151px; width: min(350px,calc(100vw - 48px)); z-index: 55; background: #101d17f5; border: 1px solid #59766088; border-radius: 6px; padding: 18px; display: flex; flex-direction: column; box-shadow: 0 16px 55px #0007; }
+.network-overview p { font-size: 12px; color: #a6bdae; line-height: 1.6; margin: 8px 0 12px; }
+.network-overview nav { overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; flex: 1; touch-action: pan-y pinch-zoom; }
+.network-overview ul { list-style: none; padding: 0; margin: 0; }
+.network-overview ul ul { margin-left: 8px; padding-left: 12px; border-left: 1px solid #54776277; }
+.network-overview li { position: relative; }
+.network-overview li button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 7px 6px; text-align: left; background: transparent; border: 0; color: #acc1b3; font-size: 12px; border-radius: 3px; }
+.network-overview li button i { width: 5px; height: 5px; border-radius: 50%; border: 1px solid currentColor; flex-shrink: 0; }
+.network-overview li .on-path { color: #cbeed9; }
+.network-overview li .on-path i { background: #b7e4ce; }
+.network-overview li button:hover:enabled { background: #29453577; }
+.network-overview li button[aria-current] { background: #294535aa; color: #e5ffee; }
+.network-overview li button small { margin-left: auto; font: 7px var(--mono); }
+.overview-progress { padding-top: 14px; border-top: 1px solid #54776277; color: #a6bdae; font: 10px/1.6 var(--mono); }
+.overview-progress progress { display: block; width: 100%; height: 3px; margin-top: 8px; accent-color: #b7e4ce; }
+.network-help { z-index: 55; }
+.help-top { align-items: center; font: 10px var(--mono); }
+.help-top button { min-width: 44px; min-height: 44px; }
+.network-help dl { font-size: 12px; }
+.fallback-neuron { min-width: 44px; min-height: 54px; height: 54px; padding: 2px; gap: 4px; }
+.fallback-neuron > span { font-size: 11px; line-height: 1.2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+@media(max-width:1100px) and (min-width:761px) { .travel-hint { display: none; }.network-location { font-size: 9px; }.travel-controls button { padding: 0 10px; } }
+@media(max-width:760px) and (min-height:501px) {
+  .network-header { top: max(12px,env(safe-area-inset-top)); left: 14px; right: 12px; gap: 7px; }
+  .network-tools button { min-width: 44px; width: 44px; height: 44px; }
+  .network-identity { font-size: 8px; letter-spacing: 0; }
+  .network-identity > span { font-size: 6px; letter-spacing: .03em; }
+  .network-location { top: 65px; left: 16px; right: 16px; max-height: none; font-size: 9px; }
+  .network-location i { margin: 0 7px; }
+  .network-location button { max-width: 145px; }
+  .network-bottom { display: grid; grid-template-columns: 1fr auto; gap: 8px; left: 14px; right: 14px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .travel-controls { grid-column: 1 / -1; display: grid; grid-template-columns: .8fr 1.45fr 1fr; gap: 6px; }
+  .travel-controls button { width: 100%; padding: 0 5px; height: 44px; gap: 5px; font-size: 18px; }
+  .travel-controls button span { font-size: 9px; }
+  .travel-hint { display: flex; font-size: 8px; }
+  .travel-hint small { font-size: 7px; }
+  .network-orientation-tools { gap: 5px; }
+  .network-orientation-tools button { padding: 0 6px; gap: 4px; }
+  .network-orientation-tools button span { font-size: 8px; }
+  .network-orientation-tools button small { font-size: 7px; }
+  .content-output { bottom: calc(151px + env(safe-area-inset-bottom)); height: 30dvh; min-height: 155px; }
+  .output-top { font-size: 7px; padding: 8px 14px; min-height: 36px; }
+  .output-bottom { padding: 0 14px; font-size: 7px; }
+  .output-bottom button { font-size: 10px; min-height: 44px; }
+  .output-body { padding: 16px; }
+  .output-summary { font-size: 12px; }
+  .network-caption { display: none; }
+  .travel-feedback { left: 16px; right: 16px; bottom: calc(112px + env(safe-area-inset-bottom)); max-width: none; font-size: 9px; min-height: 29px; text-align: center; }
+  .neuron-label { font-size: 10px; max-width: 106px; min-height: 44px; padding: 6px; }
+  .neuron-label small { font-size: 6px; }
+  .network-overview { top: 113px; bottom: calc(151px + env(safe-area-inset-bottom)); left: 14px; right: 14px; width: auto; padding: 13px; }
+  .graph-fallback { inset: 17% 3% 51%; }
+  .fallback-neuron > span { font-size: 10px; }
+  .fallback-notice { top: 110px; left: 18px; right: 18px; font-size: 8px; }
+}
+@media(max-width:360px) and (min-height:501px) { .network-identity { font-size: 7px; }.network-identity > span { font-size: 5px; }.network-header { gap: 3px; }.network-tools button { min-width: 44px; width: 44px; }.network-tools { gap: 0; }.map-toggle small { display: none; }.travel-controls button span { font-size: 8px; } }
+@media(max-height:500px) {
+  .network-header { top: 8px; }
+  .network-location { top: 54px; font-size: 9px; }
+  .network-bottom { left: 18px; right: 18px; bottom: max(9px,env(safe-area-inset-bottom)); gap: 8px; }
+  .travel-hint { display: none; }
+  .travel-controls { gap: 4px; }.travel-controls button { padding: 0 7px; }.travel-controls button span { font-size: 9px; }
+  .network-orientation-tools button { padding: 0 6px; }
+  .network-orientation-tools button span { font-size: 8px; }.map-toggle small { display: none; }
+  .travel-feedback { bottom: 61px; left: 23px; font-size: 9px; }
+  .network-caption { display: none; }
+  .content-output { top: 51%; max-height: calc(100dvh - 143px); }
+  .output-top { font-size: 6px; padding: 8px 12px; min-height: 33px; }.output-bottom { padding: 0 12px; font-size: 6px; }.output-bottom button { font-size: 9px; }
+  .network-overview { top: 100px; bottom: 88px; padding: 10px; }.network-overview p { display: none; }
+  .neuron-label { font-size: 9px; min-height: 44px; }
+}
 .branch-status-dots { display: flex; gap: 10px; margin: 17px 0 12px; }
 .branch-status-dots i { position: relative; width: 5px; height: 5px; border: 1px solid #61754f; border-radius: 50%; transition: background .4s, border-color .4s; }
 .branch-status-dots i:not(:last-child)::after { content: ""; position: absolute; left: 4px; top: 1px; width: 10px; height: 1px; background: #4d623a66; }
 .branch-status-dots .path-ready { border-color: #b0c692; background: #9fbb7955; }
 .branch-status-dots .path-visited { background: #c8e2a4; border-color: #c8e2a4; }
 .branch-status-copy { font-size: 10px; line-height: 1.8; color: #91a179; margin: 0; }
+
+/* Spatial controls and a shared palette for both neural environments. */
+.neural-app { --accent: var(--neural-accent); color: var(--neural-text); background: var(--neural-background); }
+.network-viewport,.network-viewport canvas,.network-viewport > div:has(canvas) { touch-action: none !important; }
+.network-viewport { cursor: grab; }
+.network-viewport:active { cursor: grabbing; }
+.camera-mode-tools { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
+.gesture-mode { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--neural-border); border-radius: 5px; background: var(--neural-panel); }
+.gesture-mode button { min-height: 40px; min-width: 64px; padding: 0 10px; background: transparent; border: 0; border-radius: 3px; color: var(--neural-muted); font: 10px var(--mono); }
+.gesture-mode button[aria-pressed="true"] { background: color-mix(in srgb,var(--neural-accent) 13%,transparent); color: var(--neural-text); box-shadow: inset 0 -1px var(--neural-accent); }
+.zoom-controls { display: flex; gap: 4px; }
+.zoom-controls button { min-width: 44px; min-height: 44px; background: var(--neural-panel); border: 1px solid var(--neural-border); color: var(--neural-text); border-radius: 4px; font-size: 22px; }
+.scene-instructions { position: absolute; bottom: 91px; left: 38px; z-index: 31; display: flex; gap: 24px; pointer-events: none; color: var(--neural-muted); font: 9px/1.7 var(--mono); letter-spacing: .06em; opacity: 1; transition: opacity .7s; }
+.instructions-learned { opacity: 0; visibility: hidden; transition: opacity .7s,visibility 0s .7s; }
+.feedback-initial { opacity: 0; }
+.help-quality { min-height: 44px; padding: 8px 12px; background: var(--neural-panel); color: var(--neural-text); border: 1px solid var(--neural-border); font-size: 12px; }
+.content-output { background: color-mix(in srgb,var(--neural-panel) 94%,transparent); border-color: color-mix(in srgb,var(--neural-border) 70%,transparent); }
+.network-tools button,.network-location,.travel-hint,.output-top,.output-eyebrow,.output-bottom,.output-detail,.branch-status-copy { color: var(--neural-muted); }
+.network-location button[aria-current],.neuron-selected > span,.network-brand,.output-summary,.travel-feedback { color: var(--neural-text); }
+.output-body h1 .output-emphasis,.neuron-label,.neuron-label small,.output-bottom button,.output-root .output-summary,.copy-address { color: var(--neural-text); }
+.neuron-label:hover:enabled,.neuron-hover,.neuron-selected { background: color-mix(in srgb,var(--neural-panel) 90%,transparent); }
+.network-brand span,.theme-toggle,.output-top i { color: var(--neural-accent); }
+.output-top i,.overview-progress progress { background-color: var(--neural-accent); accent-color: var(--neural-accent); }
+.travel-controls button,.network-orientation-tools button { background: var(--neural-panel); border-color: var(--neural-border); color: var(--neural-text); }
+.travel-controls button:hover:enabled,.network-orientation-tools button:hover:enabled,.zoom-controls button:hover:enabled { background: color-mix(in srgb,var(--neural-accent) 15%,var(--neural-panel)); border-color: var(--neural-accent); }
+.network-overview,.network-help { background: color-mix(in srgb,var(--neural-panel) 97%,transparent); border-color: var(--neural-border); color: var(--neural-text); }
+.network-overview li button,.network-overview p,.network-help p,.network-help dl { color: var(--neural-muted); }
+.network-overview li button[aria-current],.network-overview li .on-path { color: var(--neural-text); background: color-mix(in srgb,var(--neural-accent) 8%,transparent); }
+.network-overview li .on-path i,.branch-status-dots .path-visited { background: var(--neural-accent); border-color: var(--neural-accent); }
+.output-tags span,.output-bullets li,.output-leaf-note,.root-note { color: var(--neural-muted); border-color: var(--neural-border); }
+.output-action { background: var(--neural-panel); color: var(--neural-text); border-color: var(--neural-border); }
+.output-action.primary-action { background: var(--neural-accent); border-color: var(--neural-accent); color: var(--neural-background); }
+.network-atmosphere { background: radial-gradient(ellipse at 34% 46%,color-mix(in srgb,var(--neural-accent) 8%,transparent),transparent 60%); opacity: .3; }
+.output-tether { background: linear-gradient(90deg,color-mix(in srgb,var(--neural-accent) 35%,transparent),transparent); }
+.output-tether > i { background: var(--neural-accent); }
+@media(max-width:1000px) { .camera-mode-tools { gap: 6px; }.gesture-mode button { min-width: 54px; padding: 0 6px; font-size: 9px; }.travel-controls button { padding: 0 8px; } }
+@media(max-width:760px) and (min-height:501px) {
+  .network-bottom { grid-template-columns: 1fr auto; gap: 7px; }
+  .travel-controls { grid-template-columns: 1fr 1fr 1.35fr; }
+  .camera-mode-tools { justify-content: space-between; gap: 6px; }
+  .gesture-mode { padding: 0; }.gesture-mode button { min-width: 52px; min-height: 44px; padding: 0 5px; font-size: 8px; }
+  .zoom-controls { gap: 3px; }
+  .network-orientation-tools .deeper-control { display: none; }
+  .network-orientation-tools .map-toggle { min-width: 48px; padding: 0 5px; }
+  .network-orientation-tools .map-toggle small { display: none; }
+  .scene-instructions { bottom: calc(113px + env(safe-area-inset-bottom)); left: 16px; right: 16px; gap: 2px; flex-direction: column; align-items: center; font-size: 8px; line-height: 1.35; }
+  .neuron-label { font-size: 11px; }
+  .neuron-label small { font-size: 7px; }
+}
+@media(max-height:500px) { .scene-instructions { bottom: 65px; left: 23px; font-size: 8px; gap: 14px; }.network-orientation-tools .deeper-control { display: none; }.camera-mode-tools { gap: 5px; }.gesture-mode button { min-width: 50px; font-size: 8px; }.network-bottom { gap: 6px; } }
