@@ -42,6 +42,30 @@ export function getAncestors(graph, id) {
 }
 
 export function networkReducer(graph, state, action) {
+  if (action.type === "SYNC_GRAPH") {
+    if (!graph.nodes[state.currentNode]) return initialNetworkState(graph);
+    const activePath = getAncestors(graph, state.currentNode);
+    const expandedNodes = [...new Set(state.expandedNodes.filter(id => graph.nodes[id]).concat(activePath.slice(0, -1)))];
+    const visible = getVisibleIds(graph, expandedNodes);
+    const readyNodes = [...new Set(state.readyNodes.filter(id => visible.includes(id)).concat(state.isAnimating ? [] : visible))];
+    const navigationHistory = state.navigationHistory.filter(id => graph.nodes[id]);
+    if (navigationHistory.at(-1) !== state.currentNode) navigationHistory.push(state.currentNode);
+    return {
+      ...state,
+      selectedNode: state.currentNode,
+      contentNode: graph.nodes[state.contentNode] ? state.contentNode : state.currentNode,
+      parentNode: navigationHistory.at(-2) || null,
+      activePath,
+      expandedNodes,
+      readyNodes,
+      navigationHistory,
+      visited: [...new Set(state.visited.filter(id => graph.nodes[id]).concat(state.currentNode))],
+      hoveredNode: graph.nodes[state.hoveredNode] ? state.hoveredNode : null,
+      focusedNode: graph.nodes[state.focusedNode] ? state.focusedNode : null,
+      cameraTarget: graph.nodes[state.currentNode].position,
+      navigationDepth: graph.nodes[state.currentNode].depth,
+    };
+  }
   if (action.type === "CAMERA_POSE") {
     if (action.revision !== state.revision || !validVector(action.position) || !validVector(action.target)) return state;
     if (state.cameraPosition.every((value, axis) => Math.abs(value - action.position[axis]) < .0001) && state.cameraTarget.every((value, axis) => Math.abs(value - action.target[axis]) < .0001)) return state;

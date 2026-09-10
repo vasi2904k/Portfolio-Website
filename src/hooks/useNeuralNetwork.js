@@ -1,9 +1,11 @@
 "use client";
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { getAvailableIds, getNextNode, getVisibleIds, initialNetworkState, networkReducer } from "@/utils/graphModel.mjs";
 
 export default function useNeuralNetwork(graph) {
   const [state, dispatch] = useReducer((value, action) => networkReducer(graph, value, action), graph, initialNetworkState);
+  const graphSignature = graph.order.join("|");
+  useEffect(() => { dispatch({ type: "SYNC_GRAPH" }); }, [graphSignature]);
   const select = useCallback((id) => dispatch({ type: "SELECT", id }), []);
   const step = useCallback((direction) => dispatch({ type: "STEP", direction }), []);
   const back = useCallback(() => dispatch({ type: "BACK" }), []);

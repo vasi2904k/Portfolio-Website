@@ -1,7 +1,6 @@
 import { GITHUB_SYNC, GITHUB_USERNAME, PROJECT_OVERRIDES } from "@/config/config";
 import fallbackRepos from "@/data/fallbackRepos.json";
-import { classifyProject, stableProjectId } from "@/utils/projectClassifier.mjs";
-import { createProjectRecord } from "@/utils/readmeProject.mjs";
+import { prepareProjects } from "@/utils/projectRecords.mjs";
 
 const API_VERSION = "2022-11-28";
 const GRAPHQL_QUERY = `
@@ -108,17 +107,6 @@ async function fetchRestRepositories(token) {
     return [String(repo.id ?? repo.node_id ?? repo.full_name), { readme, languages }];
   })));
   return repositories.map(repo => ({ ...repo, ...(enriched.get(String(repo.id ?? repo.node_id ?? repo.full_name)) || {}) }));
-}
-
-function prepareProjects(repositories) {
-  const unique = new Map();
-  for (const repo of repositories) {
-    if (!repo || repo.private || repo.fork) continue;
-    const classification = classifyProject({ ...repo, readmeLength: repo.readme?.length || 0 });
-    const project = createProjectRecord({ ...repo, classification });
-    unique.set(stableProjectId(project), project);
-  }
-  return [...unique.values()].sort((a, b) => a.priority - b.priority || new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
 }
 
 export async function getPortfolioRepositories() {

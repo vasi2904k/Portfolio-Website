@@ -44,9 +44,9 @@ See `docs/neural-interface-architecture.md` for the navigation diagnosis, state 
 - Procedural neural tissue and volumetric atmosphere: `src/utils/neuralEnvironment.mjs`, `src/components/neural/NeuralEnvironment.jsx`.
 - Portrait: `public/profile.png`; social preview: `public/og.png`.
 
-GitHub data refreshes hourly on a regular Next.js deployment and uses a local fallback if GitHub is unavailable. Repository database IDs keep graph nodes stable across renames; deleted repositories disappear at the next refresh, and archived/disabled/practice repositories stay hidden unless an override opts them in. Topics and languages drive deterministic categories, manual overrides win, and authored README sections become case-study evidence without inventing missing facts.
+GitHub data refreshes hourly on a regular Next.js deployment and uses a local fallback if GitHub is unavailable. Static deployments also perform a rate-limit-aware browser refresh, cache the result for an hour, and retain their build snapshot if GitHub cannot be reached. Repository database IDs keep graph nodes stable across renames; deleted repositories disappear at the next refresh, and archived/disabled/practice repositories stay hidden unless an override opts them in. Topics and languages drive deterministic categories, manual overrides win, and authored README sections become case-study evidence without inventing missing facts.
 
-`GITHUB_TOKEN` is optional and server-side only. With a token, one GraphQL request loads all public repositories plus README, topics, and language data. Anonymous deployments still list every public repository and enrich a rate-limit-safe subset with README and language details. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment origin; Vercel's production project URL is also supported.
+`GITHUB_TOKEN` is optional and server-side only. With a token, one GraphQL request loads all public repositories plus README, topics, and language data. Anonymous server and browser refreshes still list every public repository and enrich a rate-limit-safe subset with README and language details. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment origin; Vercel's production project URL is also supported.
 
 ## Performance and fallback
 

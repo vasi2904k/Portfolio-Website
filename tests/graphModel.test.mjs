@@ -154,6 +154,16 @@ test("Return to root collapses branches, retains progress and rejects old reveal
   assert(!state.readyNodes.includes("pandas"));
 });
 
+test("a synchronized graph safely reveals new root connections", () => {
+  const state = start();
+  const updated = compileGraph({ ...fixture, children: [...fixture.children, { id: "new-branch" }] });
+  const synchronized = networkReducer(updated, state, { type: "SYNC_GRAPH" });
+  assert.equal(synchronized.currentNode, "root");
+  assert(synchronized.readyNodes.includes("new-branch"));
+  assert(getAvailableIds(updated, synchronized).includes("new-branch"));
+  assert.deepEqual(synchronized.navigationHistory, ["root"]);
+});
+
 test("random interleaved inputs preserve visibility, ancestry and transaction invariants", () => {
   let state = start();
   for (let i = 0; i < 1000; i++) {
@@ -224,8 +234,15 @@ const configSource = await readFile(new URL("../src/config/config.js", import.me
 const configUrl = dataUrl(configSource);
 const classifierSource = await readFile(new URL("../src/utils/projectClassifier.mjs", import.meta.url), "utf8");
 const classifierUrl = dataUrl(classifierSource.replace("@/config/config", configUrl));
+const readmeSource = await readFile(new URL("../src/utils/readmeProject.mjs", import.meta.url), "utf8");
+const readmeUrl = dataUrl(readmeSource);
+const recordsSource = await readFile(new URL("../src/utils/projectRecords.mjs", import.meta.url), "utf8");
+const recordsUrl = dataUrl(recordsSource.replace("@/utils/projectClassifier.mjs", classifierUrl).replace("@/utils/readmeProject.mjs", readmeUrl));
+const liveSyncSource = await readFile(new URL("../src/utils/liveProjectSync.mjs", import.meta.url), "utf8");
+const liveSyncUrl = dataUrl(liveSyncSource.replace("@/config/config", configUrl).replace("@/utils/projectRecords.mjs", recordsUrl));
 const graphSource = await readFile(new URL("../src/data/neuralGraph.js", import.meta.url), "utf8");
 const { classifyProject, stableProjectId } = await import(classifierUrl);
+const { fetchLivePortfolioProjects } = await import(liveSyncUrl);
 const { createPortfolioGraph } = await import(dataUrl(graphSource.replace("@/config/config", configUrl).replace("@/utils/projectClassifier.mjs", classifierUrl)));
 const repositories = JSON.parse(await readFile(new URL("../src/data/fallbackRepos.json", import.meta.url), "utf8"));
 const portfolio = compileGraph(createPortfolioGraph(repositories));
@@ -259,6 +276,26 @@ test("README parser only exposes authored project evidence", () => {
   assert.deepEqual(parsed.technologies, ["Python", "FastAPI"]);
   assert.deepEqual(parsed.metrics, ["Recall@5: 0.82"]);
   assert.equal(parsed.architecture, undefined);
+});
+
+test("live GitHub refresh handles renames, deletes and README or language updates", async () => {
+  const previous = [
+    { id: 77, repositoryId: "77", projectId: "project-77", name: "old-name", title: "Old Name", problem: "Old evidence", technologies: ["JavaScript"], readmeAvailable: true },
+    { id: 88, repositoryId: "88", projectId: "project-88", name: "deleted-repo", title: "Deleted Repo" },
+  ];
+  const fetcher = async url => {
+    if (url.includes("/users/vasi2904k/repos")) return new Response(JSON.stringify([{ id: 77, name: "renamed-repo", full_name: "vasi2904k/renamed-repo", html_url: "https://github.com/vasi2904k/renamed-repo", description: "Updated description", language: "Python", topics: ["llm"], updated_at: "2026-09-10T00:00:00Z" }]), { status: 200 });
+    if (url.endsWith("/readme")) return new Response("## Problem\nNew evidence\n\n## Tech Stack\n- FastAPI", { status: 200 });
+    if (url.endsWith("/languages")) return new Response(JSON.stringify({ Python: 900 }), { status: 200 });
+    return new Response("", { status: 404 });
+  };
+  const refreshed = await fetchLivePortfolioProjects(previous, { fetcher });
+  assert.equal(refreshed.length, 1);
+  assert.equal(refreshed[0].projectId, "project-77");
+  assert.equal(refreshed[0].name, "renamed-repo");
+  assert.equal(refreshed[0].problem, "New evidence");
+  assert(refreshed[0].technologies.includes("FastAPI"));
+  assert(refreshed[0].technologies.includes("Python"));
 });
 
 

@@ -1,0 +1,28 @@
+.viewport { min-height: 100vh; padding: 28px; color: #15211b; background: #dce5df; font-family: Arial, Helvetica, sans-serif; }
+.sheet { width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 20px 80px #17251d33; position: relative; padding-bottom: 15mm; }
+.header { min-height: 35mm; padding: 10mm 14mm 7mm; color: #fff; background: #15211b; }
+.kicker { margin: 0 0 2.5mm; color: #a9d2bd; font-size: 9pt; font-weight: 700; letter-spacing: .13em; }
+.header h1 { margin: 0; font-size: 24pt; line-height: 1; letter-spacing: .01em; }
+.header nav { display: flex; gap: 8mm; margin-top: 5mm; font-size: 7.2pt; color: #dce8e1; }
+.header a { color: inherit; text-decoration: none; }
+.columns { display: grid; grid-template-columns: minmax(0,1.95fr) minmax(0,1fr); gap: 7mm; padding: 9mm 14mm 6mm; }
+.primary { padding-right: 5mm; border-right: .4mm solid #d8e3dc; }
+.columns section + section { margin-top: 5.5mm; }
+.columns h2 { margin: 0 0 3.2mm; color: #3f7d61; font-size: 9.6pt; line-height: 1.1; letter-spacing: .12em; text-transform: uppercase; }
+.entry { margin-bottom: 3.8mm; break-inside: avoid; }
+.entry > div { display: flex; justify-content: space-between; gap: 4mm; align-items: baseline; }
+.entry h3,.project h3,.skill h3 { margin: 0; color: #15211b; font-size: 8.8pt; line-height: 1.15; }
+.entry span { flex: none; color: #52645a; font-size: 7pt; }
+.columns p,.columns li { margin: 1mm 0 0; font-size: 7.6pt; line-height: 1.42; }
+.meta { color: #52645a; font-size: 7pt !important; }
+.project { margin-bottom: 3.2mm; break-inside: avoid; }
+.skill { margin-bottom: 3.4mm; break-inside: avoid; }
+.skill h3 { color: #3f7d61; font-size: 7.7pt; }
+.columns ul { margin: 0; padding-left: 4mm; }
+.columns li { margin-bottom: 1.2mm; }
+.availability { padding: 3.5mm; background: #eaf2ed; }
+.sheet footer { position: absolute; left: 14mm; right: 14mm; bottom: 5.5mm; display: flex; gap: 4mm; align-items: center; padding-top: 2.5mm; border-top: .3mm solid #b7c9bf; color: #52645a; font-size: 6.3pt; }
+.sheet footer a { color: #3f7d61; font-weight: 700; text-decoration: none; }
+.sheet footer span:nth-child(2) { flex: 1; }
+@media(max-width:900px) { .viewport { padding: 0; overflow-x: auto; }.sheet { margin: 0; box-shadow: none; } }
+@media print { @page { size: A4; margin: 0; }.viewport { min-height: 0; padding: 0; background: #fff; }.sheet { width: 210mm; height: 297mm; min-height: 0; margin: 0; box-shadow: none; overflow: hidden; } }

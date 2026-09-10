@@ -50,6 +50,10 @@ Fog is a set of actual instanced spherical volumes. A shader intersects the view
 
 neuralPalette.mjs supplies green and blue/silver palettes and three quality presets. Background colors/opacity stay subdued; foreground connections are sharper, and selected nodes receive the strongest emphasis. Mobile/Lite lower dendrite depth, cluster/particle/signal/fog counts and pixel density. Buffers and Three.js scratch objects are reused; listeners, tweens, timers and geometry are cleaned up. Paused/hidden/reduced-motion views use demand rendering; intentional controls invalidate frames as needed.
 
+## Project synchronization
+
+The server prefers one authenticated GraphQL query and falls back to public REST requests with bounded README/language enrichment. Static deployments refresh the same public repository list in the browser, enrich at most twelve priority repositories with four-way concurrency, and cache the structured result for one hour. Stable GitHub database IDs survive renames, while a successful refresh naturally removes deleted repositories. Graph updates are applied only while the visitor is idle at Root, then a SYNC_GRAPH reducer action reconciles visibility and ready-state without creating a competing navigation controller.
+
 ## Validation
 
 npm test checks state sequencing, emergency recovery, pose invariants, actual OrbitControls limits, full content reachability, wheel momentum, touch classification, deterministic finite environment geometry, and framing/label collisions at nine viewport sizes.

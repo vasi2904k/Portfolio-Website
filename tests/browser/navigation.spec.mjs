@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  await page.route("https://api.github.com/**", route => route.fulfill({ status: 503, body: "Offline test fixture" }));
+});
+
 async function settled(page, id = "root") {
   await expect(page.locator(".neural-app")).toHaveAttribute("data-current-node", id);
   await expect(page.locator(".neural-app")).toHaveAttribute("data-navigation-phase", /CONTENT_VIEW|IDLE|HOVER/);
@@ -102,11 +106,33 @@ test("first-visit hint retires after interaction and recruiter view is a usable 
   await page.reload(); await settled(page);
   await expect(page.locator(".scene-instructions")).not.toHaveClass(/instructions-learned/);
   await page.getByRole("button", { name: "Open recruiter overview" }).click();
-  await expect(page.getByRole("dialog", { name: "Recruiter overview" })).toBeVisible();
+  const recruiter = page.getByRole("dialog", { name: "Recruiter overview" });
+  await expect(recruiter).toBeVisible();
+  await expect(recruiter.getByRole("link", { name: "Download resume" })).toHaveAttribute("href", "/mohammed-vasi-khan-resume.pdf");
   await page.getByRole("button", { name: "View experience", exact: true }).click(); await settled(page, "journey");
   await expect(page.getByRole("dialog", { name: "Recruiter overview" })).toHaveCount(0);
   await page.reload(); await settled(page);
   await expect(page.locator(".scene-instructions")).toHaveClass(/instructions-learned/);
+});
+
+test("a fresh GitHub repository joins the static deployment without a rebuild", async ({ page }) => {
+  await page.unroute("https://api.github.com/**");
+  await page.route("https://api.github.com/**", route => {
+    const url = route.request().url();
+    if (url.includes("/users/vasi2904k/repos")) return route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify([{ id: 777, name: "live-rag-agent", full_name: "vasi2904k/live-rag-agent", html_url: "https://github.com/vasi2904k/live-rag-agent", description: "A grounded document assistant", language: "Python", topics: ["llm", "rag", "portfolio-project"], updated_at: "2026-09-10T00:00:00Z" }]),
+    });
+    if (url.endsWith("/readme")) return route.fulfill({ body: "## Overview\nA grounded document assistant.\n\n## Tech Stack\n- Python\n- Retrieval" });
+    if (url.endsWith("/languages")) return route.fulfill({ contentType: "application/json", body: JSON.stringify({ Python: 1200 }) });
+    return route.fulfill({ status: 404 });
+  });
+  await page.goto("/"); await settled(page);
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-project-sync", "live");
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-project-count", "1");
+  await activate(page, "projects");
+  await activate(page, "projects-featured");
+  await expect(page.locator('.neuron-label[data-neural-id="project-777"]')).toBeVisible();
 });
 
 test("WebGL context loss retains branch selection and Back", async ({ page }) => {

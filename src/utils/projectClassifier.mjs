@@ -20,7 +20,8 @@ export function humanizeProjectName(name = "") {
 /** Deterministic classification with manual overrides taking precedence. */
 export function classifyProject(repo) {
   const topics = normalizedTopics(repo);
-  const override = PROJECT_OVERRIDES[repo.name] || {};
+  const identity = String(repo.repositoryId ?? repo.id ?? "");
+  const override = PROJECT_OVERRIDES[identity] || PROJECT_OVERRIDES[repo.name] || {};
   const hiddenByTopic = topics.some(topic => HIDDEN_TOPICS.includes(topic));
   const hidden = override.hidden ?? (hiddenByTopic || !!repo.disabled || (!!repo.archived && override.includeArchived !== true));
   const category = override.category || classifyByTopics(topics) || classifyByLanguage(repo.language || repo.primaryLanguage);

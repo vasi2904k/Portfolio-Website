@@ -14,7 +14,7 @@ export default function RecruiterOverview({ graph, onNavigate, onClose }) {
       <button type="button" onClick={() => navigate("projects")}>Explore projects</button>
       <button type="button" onClick={() => navigate("journey")}>View experience</button>
       <a href={`mailto:${EMAIL}`}>Contact</a>
-      <button type="button" onClick={() => window.print()}>Resume / save PDF</button>
+      <a href="/mohammed-vasi-khan-resume.pdf" download>Download resume</a>
     </div>
     <div className="recruiter-scroll">
       <section><div className="recruiter-section-title"><h3>Selected work</h3><button type="button" onClick={() => navigate("projects")}>Open in network ↗</button></div>

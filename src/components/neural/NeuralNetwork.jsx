@@ -6,6 +6,7 @@ import { compileGraph } from "@/utils/graphModel.mjs";
 import { consumeWheel, createWheelGesture, cycleAvailable } from "@/utils/navigationInput.mjs";
 import useNeuralNetwork from "@/hooks/useNeuralNetwork";
 import useSceneGestures from "@/hooks/useSceneGestures";
+import useLiveProjects from "@/hooks/useLiveProjects";
 import { NEURAL_PALETTES } from "@/config/neuralPalette.mjs";
 import ContentOutput from "./ContentOutput";
 import GraphFallback from "./GraphFallback";
@@ -21,7 +22,9 @@ class GraphicsBoundary extends Component {
 }
 
 export default function NeuralNetwork({ repos = [] }) {
-  const graph = useMemo(() => compileGraph(createPortfolioGraph(repos)), [repos]);
+  const [activeRepos, setActiveRepos] = useState(repos);
+  const { snapshot: liveProjects, status: projectSyncStatus } = useLiveProjects(repos);
+  const graph = useMemo(() => compileGraph(createPortfolioGraph(activeRepos)), [activeRepos]);
   const network = useNeuralNetwork(graph);
   const { state, visibleIds, readyIds, availableIds, nextNode, cameraStarted, cameraSettled, cameraPose, reveal, hover, focus, select: dispatchSelect, step: dispatchStep, back: dispatchBack, reset: dispatchReset, recenter: dispatchRecenter } = network;
   const selected = graph.nodes[state.currentNode];
@@ -59,6 +62,9 @@ export default function NeuralNetwork({ repos = [] }) {
   }, []);
   useEffect(() => () => clearTimeout(feedbackTimer.current), []);
   useEffect(() => { inputLock.current = state.isAnimating; }, [state.isAnimating]);
+  useEffect(() => {
+    if (liveProjects && state.currentNode === graph.rootId && !state.isAnimating) setActiveRepos(liveProjects);
+  }, [liveProjects, state.currentNode, state.isAnimating, graph.rootId]);
 
   const begin = useCallback((action, keyboard = false, force = false) => {
     if (inputLock.current && !force) return false;
@@ -186,7 +192,7 @@ export default function NeuralNetwork({ repos = [] }) {
   const moving = pageVisible && !reduced && !paused;
   const highlighted = state.focusedNode || state.hoveredNode;
   const phaseLabel = state.phase === "EXPAND_BRANCH" ? "Opening connections…" : state.isAnimating ? "Focusing " + selected.label + "…" : "";
-  return <main ref={app} tabIndex={-1} className={"neural-app " + (ready ? "scene-ready " : "") + (highlighted ? "is-hovering " : "") + (state.isAnimating ? "is-navigating " : "") + (reduced || paused ? "motion-paused" : "")} data-current-node={state.currentNode} data-navigation-phase={state.phase} data-navigation-depth={state.navigationDepth} data-navigation-history={state.navigationHistory.join(",")} data-camera-position={state.cameraPosition.join(",")} data-camera-target={state.cameraTarget.join(",")} data-theme={theme} style={{ "--neural-accent": palette.signal, "--neural-text": palette.text, "--neural-muted": palette.muted, "--neural-panel": palette.panel, "--neural-border": palette.border, "--neural-background": palette.background }}>
+  return <main ref={app} tabIndex={-1} className={"neural-app " + (ready ? "scene-ready " : "") + (highlighted ? "is-hovering " : "") + (state.isAnimating ? "is-navigating " : "") + (reduced || paused ? "motion-paused" : "")} data-current-node={state.currentNode} data-navigation-phase={state.phase} data-navigation-depth={state.navigationDepth} data-navigation-history={state.navigationHistory.join(",")} data-project-sync={projectSyncStatus} data-project-count={activeRepos.length} data-camera-position={state.cameraPosition.join(",")} data-camera-target={state.cameraTarget.join(",")} data-theme={theme} style={{ "--neural-accent": palette.signal, "--neural-text": palette.text, "--neural-muted": palette.muted, "--neural-panel": palette.panel, "--neural-border": palette.border, "--neural-background": palette.background }}>
     <div ref={viewportRef} className="network-viewport" inert={help || overview || recruiter ? "" : undefined} {...gestures.handlers}>
       {(!ready || failed) && <GraphFallback graph={graph} state={state} compact={compact} onSelect={gestures.activate} onFocus={focus} loading={!failed} />}
       {mounted && !failed && <GraphicsBoundary onFailure={onFailure}><NeuralScene graph={graph} state={state} visibleIds={visibleIds} readyIds={readyIds} hoveredId={highlighted} onHover={hover} onFocus={focus} onSelect={gestures.activate} onNodePress={gestures.pressNode} onReveal={reveal} onCameraStarted={cameraStarted} onCameraSettled={cameraSettled} onCameraPose={cameraPose} onRecenter={recover} viewportRef={viewportRef} cameraApi={cameraApi} suspended={help || overview || recruiter} onInteraction={onInteraction} palette={palette} touchDevice={touchDevice} panelExpanded={panelExpanded} onReady={onReady} onFailure={onFailure} onSlow={onSlow} moving={moving} reduced={reduced} compact={compact} qualityName={lightMode || slow ? "lite" : touchDevice || compact ? "mobile" : "desktop"} outputRef={outputRef} tetherRef={tetherRef} /></GraphicsBoundary>}
