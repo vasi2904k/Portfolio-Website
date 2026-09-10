@@ -1,3 +1,8 @@
-﻿import NeuralNetwork from "@/components/neural/NeuralNetwork";
+import NeuralNetwork from "@/components/neural/NeuralNetwork";
 import { getPortfolioRepositories } from "@/data/repositories";
-export default async function HomePage() { return <NeuralNetwork repos={await getPortfolioRepositories()} />; }
+
+export const revalidate = 3600;
+
+export default async function HomePage() {
+  return <NeuralNetwork repos={await getPortfolioRepositories()} />;
+}

@@ -24,9 +24,9 @@ export function configureOrbit(controls, distance, mobile = false, reduced = fal
   controls.touches.ONE = TOUCH.ROTATE; controls.touches.TWO = TOUCH.DOLLY_PAN;
 }
 
-export function setOrbitGestureMode(controls, travelMode) {
-  controls.touches.ONE = travelMode ? null : TOUCH.ROTATE;
-  // Two fingers always remain camera input, including in pathway travel mode.
+export function setOrbitGestureMode(controls, navigationOwnsSingleTouch) {
+  controls.touches.ONE = navigationOwnsSingleTouch ? null : TOUCH.ROTATE;
+  // Two fingers always remain camera input for predictable pinch and pan.
   controls.touches.TWO = TOUCH.DOLLY_PAN;
 }
 

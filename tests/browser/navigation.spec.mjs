@@ -38,14 +38,13 @@ test("orbit, bounded zoom, and recenter preserve navigation", async ({ page, isM
   await expect.poll(() => pose(page)).toBe(initial);
 });
 
-test("keyboard focus and explicit wheel travel", async ({ page, isMobile }) => {
+test("keyboard focus and unified wheel travel", async ({ page, isMobile }) => {
   test.skip(isMobile, "Desktop keyboard and wheel routing.");
   await page.goto("/"); await settled(page);
   await page.locator(".neural-app").focus(); await page.keyboard.press("ArrowRight");
   await expect(page.locator(".neural-app")).toHaveAttribute("data-current-node", "root");
   await page.keyboard.press("Enter"); await settled(page, "about");
   await page.keyboard.press("Escape"); await settled(page);
-  await page.getByRole("button", { name: "TRAVEL", exact: true }).click();
   await page.mouse.move(470, 240); await page.mouse.wheel(0, 220); await settled(page, "about");
   await page.keyboard.press("Escape"); await settled(page);
   // Generate a continuous burst in the page. Protocol round trips between
@@ -87,6 +86,29 @@ test("reduced motion, theme switching and accessible map keep navigation availab
   await expect(page.locator(".neural-app")).toHaveAttribute("data-navigation-depth", "2");
 });
 
+test("Back restores the actual prior location and Root clears history", async ({ page }) => {
+  await page.goto("/"); await settled(page);
+  await activate(page, "skills"); await activate(page, "python");
+  await page.locator(".network-location").getByRole("button", { name: "ROOT", exact: true }).click(); await settled(page);
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-navigation-history", /python,root$/);
+  await page.getByRole("button", { name: "Back to Python & data", exact: true }).click(); await settled(page, "python");
+  await page.getByRole("button", { name: "Return to root", exact: true }).first().click(); await settled(page);
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-navigation-history", "root");
+});
+
+test("first-visit hint retires after interaction and recruiter view is a usable escape hatch", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.removeItem("neural-onboarding-seen-v2"));
+  await page.reload(); await settled(page);
+  await expect(page.locator(".scene-instructions")).not.toHaveClass(/instructions-learned/);
+  await page.getByRole("button", { name: "Open recruiter overview" }).click();
+  await expect(page.getByRole("dialog", { name: "Recruiter overview" })).toBeVisible();
+  await page.getByRole("button", { name: "View experience", exact: true }).click(); await settled(page, "journey");
+  await expect(page.getByRole("dialog", { name: "Recruiter overview" })).toHaveCount(0);
+  await page.reload(); await settled(page);
+  await expect(page.locator(".scene-instructions")).toHaveClass(/instructions-learned/);
+});
+
 test("WebGL context loss retains branch selection and Back", async ({ page }) => {
   await page.goto("/"); await settled(page);
   await page.locator("canvas").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
@@ -122,7 +144,6 @@ test("native touch orbit, pinch, two-finger pan, and vertical pathway travel", a
   const panned = (await page.locator(".neural-app").getAttribute("data-camera-target")).split(",").map(Number);
   expect(Math.hypot(...panned)).toBeLessThanOrEqual(2.001);
   await page.getByRole("button", { name: "◎ RECENTER", exact: true }).click(); await settled(page);
-  await page.getByRole("button", { name: "TRAVEL", exact: true }).click();
   await gesture([[40, 420]], [[42, 300]]); await settled(page, "about");
   await gesture([[40, 260]], [[42, 390]]); await settled(page);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);

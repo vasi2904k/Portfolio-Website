@@ -7,6 +7,7 @@ import { getGraphViewport, isCameraFrameSafe } from "../src/utils/cameraFrame.mj
 import { classifyTouch, consumeWheel, createWheelGesture, cycleAvailable } from "../src/utils/navigationInput.mjs";
 import { getOrbitFrame } from "../src/utils/orbitCamera.mjs";
 import { arrangeNodeLabels, getLabelWidth } from "../src/utils/nodeLabels.mjs";
+import { parseProjectReadme } from "../src/utils/readmeProject.mjs";
 
 const fixture = { id: "root", children: [
   { id: "about", children: [{ id: "story" }] },
@@ -28,6 +29,7 @@ const choose = (state, id) => settle(reduce(state, { type: "SELECT", id }));
 test("initial state explicitly tracks location, target and loading lock", () => {
   const state = initialNetworkState(graph);
   assert.equal(state.currentNode, "root"); assert.equal(state.parentNode, null);
+  assert.deepEqual(state.navigationHistory, ["root"]);
   assert.deepEqual(state.activePath, ["root"]); assert.equal(state.isAnimating, true);
   assert.deepEqual(state.cameraTarget, graph.nodes.root.position);
   assert.deepEqual(getVisibleIds(graph, state.expandedNodes), ["root", "about", "skills", "projects", "journey", "connect"]);
@@ -73,16 +75,18 @@ test("hidden, unknown and repeated selections are ignored", () => {
   for (const id of ["pandas", "missing", "root"]) assert.equal(reduce(state, { type: "SELECT", id }), state);
 });
 
-test("Back follows parent ancestry after a branch switch, collapsing abandoned descendants", () => {
+test("Back follows actual visit history across branch switches", () => {
   let state = start();
   for (const id of ["skills", "python", "pandas", "projects", "project-a"]) state = choose(state, id);
   state = settle(reduce(state, { type: "BACK" }));
   assert.equal(state.currentNode, "projects");
   state = settle(reduce(state, { type: "BACK" }));
-  assert.equal(state.currentNode, "root");
+  assert.equal(state.currentNode, "pandas");
   assert(!getVisibleIds(graph, state.expandedNodes).includes("project-a"));
-  assert(!state.readyNodes.includes("pandas"));
-  assert.deepEqual(state.activePath, ["root"]);
+  assert(state.readyNodes.includes("pandas"));
+  assert.deepEqual(state.activePath, ["root", "skills", "python", "pandas"]);
+  assert.deepEqual(state.navigationHistory, ["root", "skills", "python", "pandas"]);
+  assert.equal(state.parentNode, "python");
 });
 
 test("Back restores the parent branch one level at a time", () => {
@@ -142,6 +146,7 @@ test("Return to root collapses branches, retains progress and rejects old reveal
   const prior = choose(choose(start(), "skills"), "python");
   let state = settle(reduce(prior, { type: "RESET" }));
   assert.deepEqual(state.expandedNodes, ["root"]); assert.equal(state.currentNode, "root");
+  assert.deepEqual(state.navigationHistory, ["root"]); assert.equal(state.parentNode, null);
   assert.deepEqual(state.visited, prior.visited);
   assert.equal(state.resetKey, prior.resetKey + 1);
   assert.equal(reduce(state, { type: "REVEAL", id: "pandas", revision: prior.revision }), state);
@@ -158,7 +163,9 @@ test("random interleaved inputs preserve visibility, ancestry and transaction in
     const visible = getVisibleIds(graph, state.expandedNodes);
     assert(visible.includes(state.currentNode));
     assert.deepEqual(state.activePath, getAncestors(graph, state.currentNode));
-    assert.equal(state.parentNode, graph.nodes[state.currentNode].parentId);
+    assert.equal(state.navigationHistory.at(-1), state.currentNode);
+    assert.equal(state.parentNode, state.navigationHistory.at(-2) || null);
+    assert(state.navigationHistory.every(id => graph.nodes[id] && state.visited.includes(id)));
     assert.equal(new Set(state.readyNodes).size, state.readyNodes.length);
     assert(state.readyNodes.every(id => visible.includes(id)));
     assert.equal(new Set(state.visited).size, state.visited.length);
@@ -214,21 +221,44 @@ test("layout is deterministic, genuinely 3D, and rejects duplicate IDs", () => {
 // Load the app's actual data module while resolving its Next.js config alias.
 const dataUrl = text => `data:text/javascript;base64,${Buffer.from(text).toString("base64")}`;
 const configSource = await readFile(new URL("../src/config/config.js", import.meta.url), "utf8");
+const configUrl = dataUrl(configSource);
+const classifierSource = await readFile(new URL("../src/utils/projectClassifier.mjs", import.meta.url), "utf8");
+const classifierUrl = dataUrl(classifierSource.replace("@/config/config", configUrl));
 const graphSource = await readFile(new URL("../src/data/neuralGraph.js", import.meta.url), "utf8");
-const { createPortfolioGraph } = await import(dataUrl(graphSource.replace("@/config/config", dataUrl(configSource))));
+const { classifyProject, stableProjectId } = await import(classifierUrl);
+const { createPortfolioGraph } = await import(dataUrl(graphSource.replace("@/config/config", configUrl).replace("@/utils/projectClassifier.mjs", classifierUrl)));
 const repositories = JSON.parse(await readFile(new URL("../src/data/fallbackRepos.json", import.meta.url), "utf8"));
 const portfolio = compileGraph(createPortfolioGraph(repositories));
 
-test("real portfolio preserves configured projects when GitHub data is incomplete", () => {
-  const projects = portfolio.nodes.projects.children;
-  assert.equal(projects.length, 8);
-  assert(projects.some(id => portfolio.nodes[id].label === "Admission prediction"));
+test("real portfolio groups synchronized projects without duplicating nodes", () => {
+  const projects = portfolio.order.filter(id => portfolio.nodes[id].kind === "project");
+  assert.equal(projects.length, repositories.length);
+  assert.equal(portfolio.nodes.projects.children[0], "projects-featured");
+  assert(projects.some(id => portfolio.nodes[id].label === "AgroLens AI"));
   assert.equal(portfolio.nodes.root.children.length, 5);
-  assert(portfolio.order.length > 40);
+  assert(portfolio.order.length > 30);
   for (const node of Object.values(portfolio.nodes)) {
     assert(node.title && node.summary);
     for (const action of node.actions || []) assert(/^(https:\/\/|mailto:)/.test(action.href));
   }
+});
+
+test("project classification is deterministic, rename-stable, and manually overridable", () => {
+  assert.equal(stableProjectId({ id: 9123, name: "old-name" }), stableProjectId({ id: 9123, name: "new-name" }));
+  const manual = classifyProject({ name: "AgroLens-AI", topics: [], language: "Jupyter Notebook" });
+  assert.equal(manual.category, "ai"); assert.equal(manual.featured, true); assert.equal(manual.priority, 1);
+  const automatic = classifyProject({ name: "document-agent", topics: ["rag", "llm", "portfolio-project"], language: "Python", description: "A grounded document agent" });
+  assert.equal(automatic.category, "ai"); assert.equal(automatic.subcategory, "rag"); assert.equal(automatic.featured, true);
+  assert.equal(classifyProject({ name: "coursework", topics: ["practice"] }).hidden, true);
+});
+
+test("README parser only exposes authored project evidence", () => {
+  const parsed = parseProjectReadme(`# Demo\n\n## Overview\nA grounded assistant.\n\n## Problem\nDocuments are difficult to search.\n\n## Solution\n- Chunk documents\n- Retrieve relevant passages\n\n## Tech Stack\n- Python\n- FastAPI\n\n## Results\n- Recall@5: 0.82`);
+  assert.equal(parsed.overview, "A grounded assistant.");
+  assert.equal(parsed.problem, "Documents are difficult to search.");
+  assert.deepEqual(parsed.technologies, ["Python", "FastAPI"]);
+  assert.deepEqual(parsed.metrics, ["Recall@5: 0.82"]);
+  assert.equal(parsed.architecture, undefined);
 });
 
 

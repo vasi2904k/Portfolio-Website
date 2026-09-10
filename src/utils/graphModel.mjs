@@ -30,7 +30,7 @@ export function initialNetworkState(graph) {
     isAnimating: true, phase: "CAMERA_FOCUS", cameraTarget: graph.nodes[graph.rootId].position,
     cameraPosition: [0, .3, 23], navigationDepth: 0,
     contentNode: graph.rootId, hoveredNode: null, focusedNode: null,
-    visited: [graph.rootId], revision: 0, resetKey: 0,
+    visited: [graph.rootId], navigationHistory: [graph.rootId], revision: 0, resetKey: 0,
   };
 }
 
@@ -75,23 +75,32 @@ export function networkReducer(graph, state, action) {
     return { ...state, [key]: id, ...(id ? { [action.type === "HOVER" ? "focusedNode" : "hoveredNode"]: null } : {}), phase: id ? "HOVER" : "IDLE" };
   }
   let id = action.id;
-  if (action.type === "STEP") id = action.direction < 0 ? state.parentNode : getNextNode(graph, state);
-  if (action.type === "BACK") id = state.parentNode;
+  const backward = action.type === "BACK" || (action.type === "STEP" && action.direction < 0);
+  if (action.type === "STEP") id = action.direction < 0 ? state.navigationHistory.at(-2) : getNextNode(graph, state);
+  if (action.type === "BACK") id = state.navigationHistory.at(-2);
   if (action.type === "RESET") id = graph.rootId;
   if (!["SELECT", "STEP", "BACK", "RESET"].includes(action.type)) return state;
-  if (!id || !state.readyNodes.includes(id) || !getVisibleIds(graph, state.expandedNodes).includes(id)) return state;
-  if (id === state.currentNode) return action.type === "RESET" ? networkReducer(graph, state, { type: "RECENTER" }) : state;
+  if (!id || !graph.nodes[id]) return state;
+  if (!backward && action.type !== "RESET" && (!state.readyNodes.includes(id) || !getVisibleIds(graph, state.expandedNodes).includes(id))) return state;
+  if (id === state.currentNode) {
+    if (action.type !== "RESET") return state;
+    return { ...networkReducer(graph, state, { type: "RECENTER" }), navigationHistory: [graph.rootId], parentNode: null, resetKey: state.resetKey + 1 };
+  }
   const node = graph.nodes[id], activePath = getAncestors(graph, id);
-  // Keep the parent and its siblings for context. Destination children open
-  // after focus; expansions outside the active path collapse.
-  const retained = state.expandedNodes.filter(item => activePath.includes(item));
-  const expandedNodes = retained.length === state.expandedNodes.length ? state.expandedNodes : retained;
+  const navigationHistory = action.type === "RESET" ? [graph.rootId]
+    : backward ? state.navigationHistory.slice(0, -1)
+      : [...state.navigationHistory, id];
+  // History can cross branches through Map or breadcrumbs. Re-open the
+  // destination's ancestors so the previous real location is always valid.
+  const retained = action.type === "RESET" ? [graph.rootId] : state.expandedNodes.filter(item => activePath.includes(item));
+  const expandedNodes = [...new Set([...retained, ...activePath.slice(0, -1)])];
   const visible = getVisibleIds(graph, expandedNodes);
+  const readyNodes = [...new Set([...state.readyNodes.filter(item => visible.includes(item)), ...activePath])];
   return {
-    ...state, currentNode: id, selectedNode: id, parentNode: node.parentId, activePath,
-    expandedNodes, readyNodes: state.readyNodes.filter(item => visible.includes(item)),
+    ...state, currentNode: id, selectedNode: id, parentNode: navigationHistory.at(-2) || null, activePath,
+    expandedNodes, readyNodes, navigationHistory,
     cameraTarget: node.position, navigationDepth: node.depth, isAnimating: true,
-    phase: action.type === "BACK" || activePath.length < state.activePath.length ? "BACK" : "SELECT",
+    phase: backward || action.type === "RESET" || activePath.length < state.activePath.length ? "BACK" : "SELECT",
     hoveredNode: null, focusedNode: null,
     visited: state.visited.includes(id) ? state.visited : [...state.visited, id], revision: state.revision + 1,
     resetKey: state.resetKey + (action.type === "RESET" ? 1 : 0),

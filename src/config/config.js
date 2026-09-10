@@ -8,39 +8,6 @@ export const PROFILE = {
   tagline: "Machine Learning Engineer striving to build impactful AI solutions and solve real-world problems"
 };
 
-export const FEATURED_PROJECTS = [
-  "ecommerce-sales",
-  "Global-Pollution-Analysis",
-  "Portfolio-Website",
-  "AgroLens-AI",
-  "Food-Delivery-Time-Prediction",
-  "decision-tree-regression",
-  "Admission-Prediction-Linear-Regression",
-  "imdb-movie-eda"
-];
-
-// Project section behavior control:
-// mode: "manual" uses FEATURED_PROJECTS order; "auto" uses topic/star fallback.
-// strictManual: when true and mode is "manual", only FEATURED_PROJECTS are shown.
-// showCount: maximum number of cards rendered.
-export const PROJECT_SETTINGS = {
-  mode: "manual",
-  strictManual: true,
-  showCount: 7
-};
-
-// Optional cover image per repository. Use paths from /public or full external URLs.
-export const PROJECT_IMAGES = {
-  "ecommerce-sales": "/projects/ecommerce-sales.png",
-  "Portfolio-Website": "/projects/portfolio.png",
-  "AgroLens-AI": "/projects/agro-lens.png",
-  "Food-Delivery-Time-Prediction": "/projects/food-delivery.png",
-  "decision-tree-regression": "/projects/decision-tree.png",
-  "Admission-Prediction-Linear-Regression": "/projects/admission.png",
-  "imdb-movie-eda": "/projects/imdb-eda.png",
-  "Global-Pollution-Analysis": "/projects/global-pollution.png"
-};
-
 export const experienceData = [
   {
     title: "BRM Executive",
@@ -114,42 +81,52 @@ export const linkedinHighlights = [
   }
 ];
 
-// Map insights to specific projects so this section is meaningful and editable.
-export const modelInsights = [
-  {
-    project: "decision-tree-regression",
-    task: "Insurance charge prediction",
-    metrics: [
-      { label: "R2", value: "0.86" },
-      { label: "MAE", value: "2390" },
-      { label: "RMSE", value: "4120" }
-    ],
-    confusionMatrix: null,
-    trend: [58, 64, 69, 74, 79, 84],
-    trendLabel: "Validation score trend"
-  },
-  {
-    project: "Admission-Prediction-Linear-Regression",
-    task: "Admission chance regression",
-    metrics: [
-      { label: "R2", value: "0.82" },
-      { label: "MAE", value: "0.06" },
-      { label: "RMSE", value: "0.09" }
-    ],
-    confusionMatrix: null,
-    trend: [52, 60, 67, 71, 76, 81],
-    trendLabel: "Cross-validation trend"
-  },
-  {
-    project: "imdb-movie-eda",
-    task: "Exploratory analysis",
-    metrics: [
-      { label: "Rows", value: "5K+" },
-      { label: "Features", value: "12" },
-      { label: "Null Fixes", value: "7 columns" }
-    ],
-    confusionMatrix: null,
-    trend: [40, 50, 63, 70, 74, 78],
-    trendLabel: "Analysis completion trend"
-  }
+// Manual display name and priority overrides for auto-synced GitHub projects.
+// Keys are exact repository names. Only include repos you want to customise.
+export const PROJECT_OVERRIDES = {
+  "AgroLens-AI":                        { featured: true, displayName: "AgroLens AI",              category: "ai",   priority: 1 },
+  "ecommerce-sales":                    { featured: true, displayName: "E-commerce Analysis",       category: "data", priority: 2 },
+  "Global-Pollution-Analysis":          { featured: true, displayName: "Global Pollution Analysis", category: "data", priority: 3 },
+  "Food-Delivery-Time-Prediction":      { featured: true, displayName: "Delivery Prediction",       category: "ml",   priority: 4 },
+  "decision-tree-regression":           { featured: true, displayName: "Decision Tree Regression",  category: "ml",   priority: 5 },
+  "Admission-Prediction-Linear-Regression": { featured: true, displayName: "Admission Prediction", category: "ml",   priority: 6 },
+  "imdb-movie-eda":                     { featured: true, displayName: "IMDb Movie EDA",            category: "data", priority: 7 },
+  "Portfolio-Website":                  { featured: true, displayName: "Neural Portfolio",          category: "web",  priority: 8 },
+};
+
+// GitHub topic → graph category mapping. Topics are checked in order.
+// The first matching topic wins the classification.
+export const TOPIC_CATEGORIES = [
+  { topic: "machine-learning",  category: "ml" },
+  { topic: "deep-learning",     category: "ml" },
+  { topic: "scikit-learn",      category: "ml" },
+  { topic: "xgboost",           category: "ml" },
+  { topic: "regression",        category: "ml" },
+  { topic: "classification",    category: "ml" },
+  { topic: "computer-vision",   category: "ai" },
+  { topic: "nlp",               category: "ai" },
+  { topic: "llm",               category: "ai" },
+  { topic: "neural-network",    category: "ai" },
+  { topic: "data-analysis",     category: "data" },
+  { topic: "pandas",            category: "data" },
+  { topic: "eda",               category: "data" },
+  { topic: "visualization",     category: "data" },
+  { topic: "sql",               category: "data" },
+  { topic: "nextjs",            category: "web" },
+  { topic: "react",             category: "web" },
+  { topic: "api",               category: "web" },
 ];
+
+// Repos tagged with any of these topics are hidden from the portfolio graph.
+export const HIDDEN_TOPICS = ["portfolio-hidden", "practice", "fork-only", "wip"];
+
+// Explicit publishing signals. Other meaningful repositories remain available
+// in their deterministic category without automatically becoming prominent.
+export const FEATURED_TOPICS = ["portfolio-featured", "portfolio-project"];
+
+export const GITHUB_SYNC = {
+  revalidateSeconds: 3600,
+  // Anonymous REST requests have a small shared rate limit. Newest repositories
+  // are enriched first; GITHUB_TOKEN enables the one-call GraphQL path.
+  anonymousEnrichmentLimit: 12,
+};

@@ -12,20 +12,20 @@ Official references: https://threejs.org/docs/pages/OrbitControls.html and https
 
 ## State contract
 
-The pure graphModel.mjs reducer owns currentNode, selectedNode, parentNode, activePath, expandedNodes, readyNodes, cameraTarget, cameraPosition, navigationDepth, isAnimating, phase, and revision. hoveredNode and focusedNode distinguish mouse and keyboard focus. contentNode retains the last completed output during a transition; visited preserves exploration progress.
+The pure graphModel.mjs reducer owns currentNode, selectedNode, navigationHistory, parentNode, activePath, expandedNodes, readyNodes, cameraTarget, cameraPosition, navigationDepth, isAnimating, phase, and revision. `parentNode` is the previous visited location exposed to the controls; it is deliberately not assumed to be the current node's structural parent. hoveredNode and focusedNode distinguish mouse and keyboard focus. contentNode retains the last completed output during a transition; visited preserves exploration progress.
 
 Flow: IDLE / HOVER ? SELECT (or BACK) ? CAMERA_FOCUS ? EXPAND_BRANCH ? CONTENT_VIEW.
 
 Navigation rejects conflicting input until camera focus and staggered expansion complete. Each edge grows before its child appears. Revision checks discard callbacks belonging to an interrupted transition. Recenter is the deliberate exception: it can interrupt focus or expansion, keeps the active path, and completes any pending branch reveal after recovery. Reduced motion and the non-WebGL fallback use the same transaction.
 
-Camera pose snapshots are debounced after movement instead of causing a React render every frame. They never determine graph location. Back uses ancestry and collapses abandoned descendants; Root preserves visited progress.
+Camera pose snapshots are debounced after movement instead of causing a React render every frame. They never determine graph location. Back pops the actual visit history and reconstructs the destination's ancestry when crossing branches. Root clears history, collapses branches, and preserves the broader visited-progress record.
 
 ## Input ownership
 
-- Desktop left drag orbits. Wheel zooms by default; TRAVEL switches it to pathway steps. Shift + wheel temporarily travels. Ctrl-wheel trackpad pinch always zooms the scene. Browser keyboard zoom remains native.
-- Mobile one-finger drag orbits in EXPLORE. TRAVEL reserves a vertical swipe for pathway navigation. Pinch and two-finger drag zoom/pan in either mode.
+- Desktop pointer movement supplies subtle ambient parallax, left drag orbits, and ordinary wheel input travels the active pathway. Ctrl/Cmd-wheel and trackpad pinch zoom. Browser keyboard zoom remains native.
+- Mobile one-finger gestures lock to an axis after a short threshold: vertical swipes travel, while horizontal drags orbit. Pinch and two-finger drag remain owned by OrbitControls for zoom and pan.
 - A capture-phase wheel router prevents the native controller and pathway handler from consuming the same event. Zoom targets accumulate into a short eased tween; travel needs a 90-pixel threshold and a 240 ms quiet gap between bursts. Events received while locked consume their burst.
-- useSceneGestures separates pointer-up activation from drag, multi-touch, and cancellation. Taps permit at most 10 px travel and 650 ms. Swipes need 64 px vertical travel, a 1.4 direction ratio, and less than 1000 ms. Double activation uses a 320 ms interval; it cancels the pending single activation.
+- useSceneGestures centralizes pointer classification and separates pointer-up activation from drag, multi-touch, and cancellation. Taps permit at most 10 px travel and 650 ms. Swipes need 64 px vertical travel, a 1.4 direction ratio, and less than 1000 ms. Double activation uses a 320 ms interval; it cancels the pending single activation.
 - OrbitControls captures pointers on the viewport, including projected HTML labels. Activation records the original label/mesh hit before capture so dragging from a neuron cannot accidentally activate it.
 - Arrow keys focus available neurons; Enter selects; Escape goes Back; Home returns to Root; R recenters; + / ? zoom; Page Up/Down travel.
 - Content retains native scrolling. Scene touch-action is none; content supports pan-y. Help and Map suspend scene input and return focus when closed.

@@ -36,17 +36,29 @@ export default function useSceneGestures(options) {
     if (gesture.current) { gesture.current.multiple = true; clearTimeout(timer.current); pending.current = null; return; }
     gesture.current = { id: event.pointerId, node: event.target.closest?.("[data-neural-id]")?.dataset.neuralId,
       x: event.clientX, y: event.clientY, time: performance.now(), maxDistance: 0,
+      lastX: event.clientX, lastY: event.clientY, axis: null,
       multiple: false, button: event.button, type: event.pointerType, hinted: false };
   }, []);
   const move = useCallback(event => {
     const record = gesture.current;
-    if (!record || !pointers.current.has(event.pointerId)) return;
+    if (!record || !pointers.current.has(event.pointerId)) {
+      if (event.pointerType === "mouse" && !event.buttons) latest.current.onPointerMove?.(event.clientX, event.clientY);
+      return;
+    }
     const dx = event.clientX - record.x, dy = event.clientY - record.y;
     record.maxDistance = Math.max(record.maxDistance, Math.hypot(dx, dy));
     if (record.maxDistance > 10) {
       clearTimeout(timer.current); pending.current = null;
       if (!record.hinted) { latest.current.onInteraction(); record.hinted = true; }
     }
+    if (record.type === "touch" && !record.multiple && record.maxDistance > 12) {
+      if (!record.axis) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.25) record.axis = "orbit";
+        else if (Math.abs(dy) > Math.abs(dx) * 1.25) record.axis = "navigate";
+      }
+      if (record.axis === "orbit") latest.current.onOrbit?.(event.clientX - record.lastX, event.clientY - record.lastY);
+    }
+    record.lastX = event.clientX; record.lastY = event.clientY;
   }, []);
   const up = useCallback(event => {
     const record = gesture.current;
@@ -58,7 +70,8 @@ export default function useSceneGestures(options) {
     const value = latest.current;
     if (value.locked || value.suspended || record.button > 0) return;
     if (kind === "tap" && record.node) activate(record.node);
-    else if (record.type === "touch" && value.travelMode && (kind === "forward" || kind === "back")) value.onTravel(kind === "forward" ? 1 : -1);
+    // On touch, vertical swipes always navigate (no mode toggle needed).
+    else if (record.type === "touch" && (kind === "forward" || kind === "back")) value.onTravel(kind === "forward" ? 1 : -1);
   }, [activate]);
   const click = useCallback(event => {
     if (event.detail > 0 || latest.current.locked || latest.current.suspended) { event.preventDefault(); event.stopPropagation(); }

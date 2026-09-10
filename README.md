@@ -15,14 +15,15 @@ Open http://localhost:3000. A regular production deployment uses `npm run build`
 
 The bright foreground neurons are the portfolio. The quieter branching tissue around them is a real 3D environment.
 
-- **Desktop:** left-drag to orbit; wheel, trackpad pinch, or + / ? to zoom. Select **TRAVEL** to make the wheel follow the active pathway instead. Shift + wheel temporarily travels without changing modes.
-- **Mobile:** one finger orbits in **EXPLORE**; pinch zooms; two-finger drag pans nearby. In **TRAVEL**, swipe up enters a child and swipe down returns to the parent. Pinch and two-finger pan remain available in both modes.
+- **Desktop:** move the pointer for subtle parallax, drag to orbit, scroll to travel along the active pathway, and use trackpad pinch, Ctrl/Cmd + wheel, or + / - to zoom.
+- **Mobile:** tap a neuron, swipe vertically to travel, drag horizontally to orbit, pinch to zoom, and use two fingers to pan. Gesture direction is classified once so these actions do not fight each other.
 - Click/tap activates a neuron. Double click/tap focuses it; double activation of the current neuron restores its camera view.
-- **? BACK** follows the parent. **? ROOT** collapses branches and preserves exploration progress. **? RECENTER** or R restores the active branch, including during a transition.
+- **BACK** follows the places you actually visited, including jumps across branches. **ROOT** clears that history and returns home. **RECENTER** or R restores the active branch, including during a transition.
 - The breadcrumb shows the current path. **MAP** opens a readable, keyboard-accessible outline of revealed branches.
 - Arrow keys move focus; Enter activates; Escape goes Back; Home returns to Root; Page Down / Page Up travel deeper / back.
 - On portrait mobile, **READ STORY** opens the connected content panel. Scroll inside content to read without moving through the graph.
 - The palette control switches between neural green and blue/silver. Pause stops ambient motion; Lite reduces background complexity.
+- **RECRUITER BRIEF** opens a fast, printable overview of selected work, experience, skills, and contact links without replacing the neural interface.
 
 Camera focus finishes before connections grow and children appear in sequence. Navigation locks during this transaction. A single wheel burst can travel only one step, including momentum that outlasts the animation. Zoom and orbit never change the active path. Camera distance, rotation, elevation, and pan remain bounded around the selected neuron.
 
@@ -34,7 +35,7 @@ See `docs/neural-interface-architecture.md` for the navigation diagnosis, state 
 
 ## Customize
 
-- Profile/contact information, featured repository order, images, and experience: `src/config/config.js`.
+- Profile/contact information, repository overrides, classification rules, and experience: `src/config/config.js`.
 - Hierarchy, node content, and skill branches: `src/data/neuralGraph.js`.
 - Visual theme, output-panel layouts, and responsive rules: `src/app/globals.css`.
 - Graph layout and navigation behavior: `src/utils/graphModel.mjs`.
@@ -43,7 +44,9 @@ See `docs/neural-interface-architecture.md` for the navigation diagnosis, state 
 - Procedural neural tissue and volumetric atmosphere: `src/utils/neuralEnvironment.mjs`, `src/components/neural/NeuralEnvironment.jsx`.
 - Portrait: `public/profile.png`; social preview: `public/og.png`.
 
-GitHub data refreshes hourly on the regular Next.js deployment and uses a local fallback if unavailable. All configured featured projects remain available even when fallback metadata is incomplete. `GITHUB_TOKEN` is optional and server-side only. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment origin; Vercel's production project URL is also supported.
+GitHub data refreshes hourly on a regular Next.js deployment and uses a local fallback if GitHub is unavailable. Repository database IDs keep graph nodes stable across renames; deleted repositories disappear at the next refresh, and archived/disabled/practice repositories stay hidden unless an override opts them in. Topics and languages drive deterministic categories, manual overrides win, and authored README sections become case-study evidence without inventing missing facts.
+
+`GITHUB_TOKEN` is optional and server-side only. With a token, one GraphQL request loads all public repositories plus README, topics, and language data. Anonymous deployments still list every public repository and enrich a rate-limit-safe subset with README and language details. Set `NEXT_PUBLIC_SITE_URL` to the canonical deployment origin; Vercel's production project URL is also supported.
 
 ## Performance and fallback
 

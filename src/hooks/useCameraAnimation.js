@@ -6,7 +6,7 @@ import { Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { clampZoom, configureOrbit, getOrbitFrame, setOrbitGestureMode } from "@/utils/orbitCamera.mjs";
 
-export default function useCameraAnimation({ graph, state, compact, reduced, touchDevice, panelExpanded, viewportRef, cameraApi, travelMode, suspended, onCameraStarted, onCameraSettled, onCameraPose, onRecenter, onInteraction }) {
+export default function useCameraAnimation({ graph, state, compact, reduced, touchDevice, panelExpanded, viewportRef, cameraApi, suspended, onCameraStarted, onCameraSettled, onCameraPose, onRecenter, onInteraction }) {
   const { camera, size, invalidate } = useThree();
   const controls = useMemo(() => new OrbitControls(camera), [camera]);
   const transition = useRef(null), zoomTween = useRef(null), snapshotTimer = useRef();
@@ -15,7 +15,7 @@ export default function useCameraAnimation({ graph, state, compact, reduced, tou
   const pose = useRef({ x: 0, y: 0, z: 23, tx: 0, ty: 0, tz: 0, ox: 0, oy: 0 });
   const zoom = useRef({ distance: 23 }), zoomDestination = useRef(null);
   const latest = useRef();
-  latest.current = { state, reduced, suspended, travelMode, onCameraPose, onRecenter, onInteraction };
+  latest.current = { state, reduced, suspended, onCameraPose, onRecenter, onInteraction };
   const snapshot = useMemo(() => () => {
     const value = latest.current;
     value.onCameraPose(camera.position.toArray(), controls.target.toArray(), value.state.revision);
@@ -49,6 +49,14 @@ export default function useCameraAnimation({ graph, state, compact, reduced, tou
           onComplete: () => { zoomDestination.current = null; snapshot(); },
         });
         value.onInteraction(); invalidate();
+      },
+      orbit(deltaX, deltaY = 0) {
+        const value = latest.current;
+        if (value.state.isAnimating || value.suspended || transition.current || dragging.current) return;
+        const height = Math.max(1, viewportRef.current?.clientHeight || 800);
+        controls.rotateLeft(Math.PI * 2 * deltaX / height * .42);
+        controls.rotateUp(Math.PI * 2 * deltaY / height * .12);
+        controls.update(); value.onInteraction(); invalidate();
       },
       cancelMotion() { zoomTween.current?.kill(); zoomDestination.current = null; },
     };
@@ -96,7 +104,7 @@ export default function useCameraAnimation({ graph, state, compact, reduced, tou
       onComplete: () => {
         controls.cursor.fromArray(frame.target);
         configureOrbit(controls, frame.distance, touchDevice, reduced);
-        setOrbitGestureMode(controls, latest.current.travelMode);
+        setOrbitGestureMode(controls, true);
         applyPose(); controls.update(); transition.current = null;
         snapshot(); onCameraSettled(state.revision);
       },
@@ -110,7 +118,7 @@ export default function useCameraAnimation({ graph, state, compact, reduced, tou
   useFrame((_, delta) => {
     const value = latest.current;
     controls.enabled = initialized.current && !value.state.isAnimating && !value.suspended && !transition.current;
-    setOrbitGestureMode(controls, value.travelMode);
+    setOrbitGestureMode(controls, true);
     if (!transition.current && !value.state.isAnimating) {
       controls.enableDamping = !value.reduced;
       controls.dampingFactor = 1 - Math.exp(-Math.min(delta, .05) * 7);

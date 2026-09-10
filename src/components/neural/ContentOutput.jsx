@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { gsap } from "gsap";
 
-export default function ContentOutput({ graph, node, outputRef, readyIds, reduced, visited, onReset, onBack, isAnimating, phaseLabel, resetKey, compact, panelExpanded, onToggleStory }) {
+export default function ContentOutput({ graph, node, outputRef, readyIds, reduced, visited, onReset, onBack, canGoBack, isAnimating, phaseLabel, resetKey, compact, panelExpanded, onToggleStory }) {
   const body = useRef(), scroll = useRef(), timer = useRef();
   const [copy, setCopy] = useState("Copy address");
   useEffect(() => {
@@ -23,10 +22,17 @@ export default function ContentOutput({ graph, node, outputRef, readyIds, reduce
     <div id="node-story" ref={scroll} className="output-scroll" tabIndex={0} aria-label="Scroll node content" hidden={compact && !panelExpanded}>
       <div ref={body} className="output-body"><p className="output-eyebrow">{node.eyebrow || `${node.kind.toUpperCase()} / ${node.label.toUpperCase()}`}</p>
         <h1 id="output-title">{node.title.split("\n").map((line, index) => <span key={`${line}-${index}`} className={node.kind === "root" && index === 2 ? "output-emphasis" : ""}>{line}</span>)}</h1>
-        {node.image && <div className={`output-image ${node.imageType === "portrait" ? "output-portrait" : ""}`}><Image src={node.image} alt={node.imageType === "portrait" ? "Mohammed Vasi Khan" : `${node.title} project preview`} fill sizes="(max-width: 760px) 90vw, 350px" className="object-cover" /></div>}
         <p className="output-summary">{node.summary}</p>
         {node.detail && <p className="output-detail">{node.detail}</p>}
+        {node.kind === "project" && (node.problem || node.solution || node.architecture) && <div className="project-evidence">
+          {node.problem && <section><h2>Problem</h2><p>{node.problem}</p></section>}
+          {node.solution && <section><h2>Solution</h2><p>{node.solution}</p></section>}
+          {node.architecture && <section><h2>Architecture</h2><p>{node.architecture}</p></section>}
+        </div>}
         {node.bullets && <ul className="output-bullets">{node.bullets.map(item => <li key={item}>{item}</li>)}</ul>}
+        {node.highlights?.length > 0 && <section className="project-list"><h2>Highlights</h2><ul>{node.highlights.map(item => <li key={item}>{item}</li>)}</ul></section>}
+        {node.metrics?.length > 0 && <section className="project-list project-results"><h2>Results from README</h2><ul>{node.metrics.map(item => <li key={item}>{item}</li>)}</ul></section>}
+        {node.technologies?.length > 0 && <section className="project-stack"><h2>Technologies</h2><p>{node.technologies.join(" · ")}</p></section>}
         {node.tags?.length > 0 && <div className="output-tags">{node.tags.map(tag => <span key={tag}>{tag}</span>)}</div>}
         {node.actions?.length > 0 && <div className="output-actions">{node.actions.map((action, index) => <a className={index === 0 ? "output-action primary-action" : "output-action"} key={action.href} href={action.href} {...(/^https?:/.test(action.href) ? { target: "_blank", rel: "noreferrer" } : {})}>{action.label}<span aria-hidden="true">↗</span></a>)}</div>}
         {node.copy && <button type="button" className="copy-address" onClick={copyAddress} aria-live="polite">{copy} <span aria-hidden="true">⧉</span></button>}
@@ -35,6 +41,6 @@ export default function ContentOutput({ graph, node, outputRef, readyIds, reduce
         {node.kind === "root" && <p className="root-note">BUILT WITH CURIOSITY. EXPLORED BY YOU.</p>}
       </div>
     </div>
-    {(!compact || panelExpanded) && <div className="output-bottom"><span>{node.children.length ? "BRANCH / EXPANDABLE" : "PATH COMPLETE"}</span><button type="button" disabled={isAnimating} onClick={node.parentId ? onBack : onReset}>{node.parentId ? "← Back to parent" : "⌂ Return to root"}</button></div>}
+    {(!compact || panelExpanded) && <div className="output-bottom"><span>{node.children.length ? "BRANCH / EXPANDABLE" : "PATH COMPLETE"}</span><button type="button" disabled={isAnimating} onClick={canGoBack ? onBack : onReset}>{canGoBack ? "← Previous location" : "⌂ Return to root"}</button></div>}
   </aside>;
 }
