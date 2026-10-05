@@ -33,7 +33,7 @@ const fiberFragment = `
     float pulse = .9 + .1 * sin(uTime * .4 + vPhase);
     float local = uActivity * vNear;
     float fade = 1.0 - smoothstep(55.0, 170.0, vDistance);
-    gl_FragColor = vec4(mix(uColor, uSignal, local * .5), (.22 + local * .16) * pulse * fade);
+    gl_FragColor = vec4(mix(uColor, uSignal, local * .5), (.16 + local * .12) * pulse * fade);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -135,18 +135,18 @@ export default function NeuralEnvironment({ quality, palette, activePosition, re
   });
   return <group name="neural-environment">
     <group name="distant-neural-field">
-      <points raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldPositions.length / 3} array={tissue.fieldPositions} itemSize={3} /></bufferGeometry><pointsMaterial color={palette.field} size={.15} transparent opacity={.27} depthWrite={false} /></points>
-      <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldEdges.length / 3} array={tissue.fieldEdges} itemSize={3} /></bufferGeometry><lineBasicMaterial color={palette.fiber} transparent opacity={.13} depthWrite={false} /></lineSegments>
+      <points raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldPositions.length / 3} array={tissue.fieldPositions} itemSize={3} /></bufferGeometry><pointsMaterial color={palette.field} size={.15} transparent opacity={.12} depthWrite={false} /></points>
+      <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldEdges.length / 3} array={tissue.fieldEdges} itemSize={3} /></bufferGeometry><lineBasicMaterial color={palette.fiber} transparent opacity={.065} depthWrite={false} /></lineSegments>
     </group>
     <group name="organic-neural-tissue">
       <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fibers.length / 3} array={tissue.fibers} itemSize={3} /><bufferAttribute attach="attributes-aPhase" count={tissue.phases.length} array={tissue.phases} itemSize={1} /></bufferGeometry><shaderMaterial uniforms={fiberUniforms} vertexShader={fiberVertex} fragmentShader={fiberFragment} transparent depthWrite={false} /></lineSegments>
-      <instancedMesh ref={soma} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><icosahedronGeometry args={[1, 1]} /><meshBasicMaterial transparent opacity={.5} /></instancedMesh>
-      <instancedMesh ref={halos} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 8, 6]} /><meshBasicMaterial color={palette.aura} transparent opacity={.022} depthWrite={false} blending={AdditiveBlending} /></instancedMesh>
-      <instancedMesh ref={signals} args={[null, null, quality.signals]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color={palette.signal} transparent opacity={.62} depthWrite={false} toneMapped={false} /></instancedMesh>
+      <instancedMesh ref={soma} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><icosahedronGeometry args={[1, 1]} /><meshBasicMaterial transparent opacity={.25} /></instancedMesh>
+      <instancedMesh ref={halos} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 8, 6]} /><meshBasicMaterial color={palette.aura} transparent opacity={.02} depthWrite={false} blending={AdditiveBlending} /></instancedMesh>
+      <instancedMesh ref={signals} args={[null, null, quality.signals]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color={palette.signal} transparent opacity={.9} depthWrite={false} toneMapped={false} /></instancedMesh>
     </group>
     <group name="volumetric-neural-atmosphere">
       <instancedMesh ref={fog} args={[null, null, tissue.clouds.length]} raycast={noRaycast}><sphereGeometry args={[1, 16, 12]} /><shaderMaterial vertexShader={mistVertex} fragmentShader={mistFragment} uniforms={mistUniforms} transparent depthWrite={false} side={BackSide} /></instancedMesh>
-      <points ref={dust} raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.dust.length / 3} array={tissue.dust} itemSize={3} /></bufferGeometry><pointsMaterial color={palette.aura} size={.034} transparent opacity={.28} depthWrite={false} blending={AdditiveBlending} /></points>
+      <points ref={dust} raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.dust.length / 3} array={tissue.dust} itemSize={3} /></bufferGeometry><pointsMaterial color={palette.aura} size={.034} transparent opacity={.12} depthWrite={false} blending={AdditiveBlending} /></points>
     </group>
   </group>;
 }

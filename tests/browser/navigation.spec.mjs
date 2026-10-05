@@ -78,7 +78,10 @@ test("double activation focuses once and Recenter can interrupt a transition", a
 test("reduced motion, theme switching and accessible map keep navigation available", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/"); await settled(page);
-  await page.getByRole("button", { name: /Switch to blue/ }).click();
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-theme", "blue");
+  await page.getByRole("button", { name: /Switch to neural green/ }).click();
+  await expect(page.locator(".neural-app")).toHaveAttribute("data-theme", "green");
+  await page.getByRole("button", { name: /Switch to neon blue/ }).click();
   await expect(page.locator(".neural-app")).toHaveAttribute("data-theme", "blue");
   await page.locator(".map-toggle").click();
   const map = page.getByRole("dialog", { name: /Network overview/ });
@@ -105,7 +108,7 @@ test("first-visit hint retires after interaction and recruiter view is a usable 
   await page.evaluate(() => localStorage.removeItem("neural-onboarding-seen-v2"));
   await page.reload(); await settled(page);
   await expect(page.locator(".scene-instructions")).not.toHaveClass(/instructions-learned/);
-  await page.getByRole("button", { name: "Open recruiter overview" }).click();
+  await page.getByRole("button", { name: "About & work" }).click();
   const recruiter = page.getByRole("dialog", { name: "Recruiter overview" });
   await expect(recruiter).toBeVisible();
   await expect(recruiter.getByRole("link", { name: "Download resume" })).toHaveAttribute("href", "/mohammed-vasi-khan-resume.pdf");
@@ -177,3 +180,26 @@ test("native touch orbit, pinch, two-finger pan, and vertical pathway travel", a
   await session.detach();
 });
 export { settled, pose };
+
+test('human portfolio exposes identity, anchored skills, and resume alongside the neural homepage', async ({ page }) => {
+  await page.goto('/'); await settled(page);
+  await page.getByRole('button', { name: 'About & work' }).click();
+  const overview = page.getByRole('dialog', { name: 'Recruiter overview' });
+  await expect(overview.getByRole('heading', { name: 'Mohammed Vasi Khan', exact: true })).toBeVisible();
+  await expect(overview.getByRole('link', { name: 'Download resume', exact: true })).toHaveAttribute('href', '/mohammed-vasi-khan-resume.pdf');
+  await overview.getByRole('link', { name: 'Skills', exact: true }).click();
+  await expect(overview.getByRole('heading', { name: 'Technical toolkit', exact: true })).toBeInViewport();
+  await overview.getByRole('button', { name: 'Return to neural network' }).click();
+  await expect(overview).toHaveCount(0);
+  await expect(page.locator('canvas')).toBeVisible();
+});
+
+test('plain-language entry point opens a photo-free personal portfolio', async ({ page, isMobile }) => {
+  await page.goto('/'); await settled(page);
+  if (isMobile) await page.getByRole('button', { name: 'Read introduction' }).click();
+  await expect(page.locator('.output-summary')).toContainText('machine learning engineer');
+  await expect(page.locator('.output-top')).toContainText('Introduction');
+  await page.getByRole('button', { name: 'About & work', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Recruiter overview' })).toBeVisible();
+  await expect(page.locator('.portfolio-photo')).toHaveCount(0);
+});

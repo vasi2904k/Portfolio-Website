@@ -63,8 +63,8 @@ export function createPortfolioGraph(repos = []) {
   if (!projectBranches.length) projectBranches.push({ id: "projects-empty", label: "Sync pending", kind: "story", title: "Projects are reconnecting.", summary: "GitHub project data is temporarily unavailable. The rest of the portfolio remains ready to explore." });
   return {
     id: "root", label: "VASI KHAN", kind: "root", eyebrow: "MACHINE LEARNING ENGINEER",
-    title: "A mind.\nA network.\nPossibilities.", summary: "I’m Mohammed Vasi Khan. I turn complex data into useful systems, and curiosity into real-world experiments.",
-    detail: "This is my portfolio, connected. Choose a neuron to explore.",
+    title: "Mohammed\nVasi Khan.", summary: "I’m a machine learning engineer working with Python, data analysis, and predictive models. I build experiments, compare results, and document what I learn.",
+    detail: "My experience in business operations and autonomous delivery support shapes how I approach real-world problems. Choose a section to explore my work.",
     children: [
       { id: "about", label: "About", kind: "branch", eyebrow: "01 / THE HUMAN", title: "The human behind\nthe network.", summary: "I'm a machine learning engineer who enjoys connecting data, ideas, and the problems people need solved.", detail: "My path through business, customer experience, and autonomous systems gives me a practical perspective on AI. I care about understanding a problem before choosing the model.", children: [
         { id: "approach", label: "My approach", kind: "story", title: "Understand. Build.\nKeep learning.", summary: "I approach machine learning as an iterative engineering process.", bullets: ["Start with the problem and the people it affects.", "Explore the data and establish a useful baseline.", "Evaluate honestly, document decisions, and improve with every experiment."] },

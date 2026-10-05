@@ -7,11 +7,12 @@ import { consumeWheel, createWheelGesture, cycleAvailable } from "@/utils/naviga
 import useNeuralNetwork from "@/hooks/useNeuralNetwork";
 import useSceneGestures from "@/hooks/useSceneGestures";
 import useLiveProjects from "@/hooks/useLiveProjects";
-import { NEURAL_PALETTES } from "@/config/neuralPalette.mjs";
+import { NEURAL_PALETTES, DEFAULT_NEURAL_THEME } from "@/config/neuralPalette.mjs";
 import ContentOutput from "./ContentOutput";
 import GraphFallback from "./GraphFallback";
 import NavigationOverview from "./NavigationOverview";
 import RecruiterOverview from "./RecruiterOverview";
+import NeuralIcon, { NeuralMark } from "./NeuralIcon";
 const NeuralScene = dynamic(() => import("./NeuralScene"), { ssr: false, loading: () => null });
 
 class GraphicsBoundary extends Component {
@@ -39,7 +40,7 @@ export default function NeuralNetwork({ repos = [] }) {
   const [storyNode, setStoryNode] = useState(null);
   const panelExpanded = !selected.children.length || storyNode === state.currentNode;
   const [learned, setLearned] = useState(false);
-  const [theme, setTheme] = useState("green");
+  const [theme, setTheme] = useState(DEFAULT_NEURAL_THEME);
   const palette = NEURAL_PALETTES[theme];
   const onInteraction = useCallback(() => {
     setLearned(true);
@@ -200,30 +201,31 @@ export default function NeuralNetwork({ repos = [] }) {
     <div className="network-atmosphere" aria-hidden="true" /><div className="network-vignette" aria-hidden="true" />
     <div ref={tetherRef} className="output-tether" aria-hidden="true" style={{ opacity: 0, display: ready && !failed ? undefined : "none" }}><i /></div>
     <header className="network-header" data-network-ui>
-      <button type="button" onClick={() => reset()} disabled={state.isAnimating} className="network-brand" aria-label="Return to root">v<span>.</span></button>
+      <button type="button" onClick={() => reset()} disabled={state.isAnimating} className="network-brand" aria-label="Return to root"><NeuralMark /></button>
       <div className="network-identity">MOHAMMED VASI KHAN<span>MACHINE LEARNING ENGINEER</span></div>
+      <div className="brand-telemetry"><i />{failed ? "2D MAP" : !ready ? "LOADING" : "NEURAL NETWORK"}<span>{visibleIds.length} nodes</span></div>
       <div className="network-tools">
-        <button ref={recruiterButton} type="button" className="recruiter-toggle" onClick={() => { setRecruiter(!recruiter); setHelp(false); setOverview(false); onInteraction(); }} aria-expanded={recruiter} aria-controls="recruiter-overview" aria-label="Open recruiter overview"><span aria-hidden="true">⌁</span><span className="tool-text">Brief</span></button>
-        {!compact && <button type="button" className={lightMode ? "is-active" : ""} aria-pressed={lightMode} onClick={() => setLightMode(!lightMode)} aria-label="Use lighter graphics"><span className="quality-icon" aria-hidden="true">◈</span><span className="tool-text">Lite</span></button>}
-        <button type="button" className="theme-toggle" onClick={() => setTheme(theme === "green" ? "blue" : "green")} aria-label={theme === "green" ? "Switch to blue and silver theme" : "Switch to neural green theme"} title="Change neural palette"><span aria-hidden="true">◐</span></button>
-        <button type="button" aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(!paused)} aria-label={reduced ? "System reduced motion is enabled" : paused ? "Resume ambient motion" : "Pause ambient motion"}>{paused || reduced ? "▷" : "Ⅱ"}</button>
-        <button ref={helpButton} type="button" onClick={() => { setHelp(!help); setOverview(false); setRecruiter(false); }} aria-expanded={help} aria-controls="network-help" aria-label="How to explore">?</button>
+        <button ref={recruiterButton} type="button" className="recruiter-toggle" onClick={() => { setRecruiter(!recruiter); setHelp(false); setOverview(false); onInteraction(); }} aria-expanded={recruiter} aria-controls="recruiter-overview" aria-label="About & work"><NeuralIcon name="brief" /><span className="tool-text">About &amp; work</span></button>
+        {!compact && <button type="button" className={lightMode ? "is-active" : ""} aria-pressed={lightMode} onClick={() => setLightMode(!lightMode)} aria-label="Use lighter graphics"><NeuralIcon name="lite" /><span className="tool-text">Lite</span></button>}
+        <button type="button" className="theme-toggle" onClick={() => setTheme(theme === "green" ? "blue" : "green")} aria-label={theme === "green" ? "Switch to neon blue theme" : "Switch to neural green theme"} title="Change neural palette"><NeuralIcon name="theme" /></button>
+        <button type="button" aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(!paused)} aria-label={reduced ? "System reduced motion is enabled" : paused ? "Resume ambient motion" : "Pause ambient motion"}><NeuralIcon name={paused || reduced ? "play" : "pause"} /></button>
+        <button ref={helpButton} type="button" onClick={() => { setHelp(!help); setOverview(false); setRecruiter(false); }} aria-expanded={help} aria-controls="network-help" aria-label="How to explore"><NeuralIcon name="help" /></button>
       </div>
     </header>
     <nav ref={breadcrumb} className="network-location" data-network-ui aria-label="Current neural pathway">
       {state.activePath.map((id, index) => <span key={id}>{index > 0 && <i aria-hidden="true">/</i>}<button type="button" disabled={state.isAnimating} onClick={() => select(id)} aria-current={id === state.currentNode ? "location" : undefined} title={graph.nodes[id].label}>{id === graph.rootId ? "ROOT" : graph.nodes[id].label.toUpperCase()}</button></span>)}
     </nav>
-    <div className="network-caption"><span className="caption-dash" /><span>{state.currentNode === graph.rootId ? "A PORTFOLIO, CONNECTED." : "FOLLOWING " + selected.label.toUpperCase() + "."}</span></div>
+    <div className="network-caption"><span className="caption-dash" /><span>{state.currentNode === graph.rootId ? "EXPLORE THE CONNECTIONS." : "FOLLOWING " + selected.label.toUpperCase() + "."}</span></div>
     <ContentOutput graph={graph} node={graph.nodes[state.contentNode]} outputRef={outputRef} readyIds={readyIds} reduced={reduced} visited={state.visited} onReset={() => reset()} onBack={() => back()} canGoBack={!!state.parentNode} isAnimating={state.isAnimating} phaseLabel={phaseLabel} resetKey={state.resetKey} compact={compact} panelExpanded={panelExpanded} onToggleStory={() => setStoryNode(panelExpanded ? null : state.currentNode)} />
     <footer className="network-bottom" data-network-ui>
       <div className="travel-controls" aria-label="Network navigation">
-        <button type="button" onClick={() => back()} disabled={state.isAnimating || !state.parentNode} aria-label={state.parentNode ? "Back to " + graph.nodes[state.parentNode].label : "Back, already at root"}>← <span>BACK</span></button>
-        <button type="button" onClick={() => reset()} disabled={state.isAnimating}>⌂ <span>ROOT</span></button>
-        <button type="button" onClick={() => recenter()}>◎ <span>RECENTER</span></button>
+        <button type="button" onClick={() => back()} disabled={state.isAnimating || !state.parentNode} aria-label={state.parentNode ? "Back to " + graph.nodes[state.parentNode].label : "Back, already at root"}><NeuralIcon name="back" /><span>BACK</span><kbd aria-hidden="true">Esc</kbd></button>
+        <button type="button" onClick={() => reset()} disabled={state.isAnimating} aria-label="⌂ ROOT"><NeuralIcon name="home" /><span>ROOT</span><kbd aria-hidden="true">Home</kbd></button>
+        <button type="button" onClick={() => recenter()} aria-label="◎ RECENTER"><NeuralIcon name="focus" /><span>RECENTER</span><kbd aria-hidden="true">R</kbd></button>
       </div>
       <div className="network-orientation-tools">
-        <button type="button" className="deeper-control" disabled={state.isAnimating || !nextNode} onClick={() => step(1)} aria-label={nextNode ? "Move deeper to " + graph.nodes[nextNode].label : "End of this path"} title={nextNode ? "Next: " + graph.nodes[nextNode].label : "Use Back to explore another connection"}>↓ <span>{nextNode ? "DEEPER" : "PATH COMPLETE"}</span></button>
-        <button ref={mapButton} type="button" className="map-toggle" onClick={() => { setOverview(!overview); setHelp(false); setRecruiter(false); }} aria-expanded={overview} aria-controls="network-overview">⌘ <span>MAP</span><small>{state.visited.length}/{graph.order.length}</small></button>
+        <button type="button" className="deeper-control" disabled={state.isAnimating || !nextNode} onClick={() => step(1)} aria-label={nextNode ? "Move deeper to " + graph.nodes[nextNode].label : "End of this path"} title={nextNode ? "Next: " + graph.nodes[nextNode].label : "Use Back to explore another connection"}><NeuralIcon name="down" /><span>{nextNode ? "DEEPER" : "PATH COMPLETE"}</span></button>
+        <button ref={mapButton} type="button" className="map-toggle" onClick={() => { setOverview(!overview); setHelp(false); setRecruiter(false); }} aria-expanded={overview} aria-controls="network-overview"><NeuralIcon name="map" /> <span>MAP</span><small>{state.visited.length}/{graph.order.length}</small></button>
       </div>
     </footer>
     <div className={"scene-instructions " + (learned ? "instructions-learned" : "")} aria-hidden={learned}>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import NeuralIcon from "./NeuralIcon";
 
 export default function ContentOutput({ graph, node, outputRef, readyIds, reduced, visited, onReset, onBack, canGoBack, isAnimating, phaseLabel, resetKey, compact, panelExpanded, onToggleStory }) {
   const body = useRef(), scroll = useRef(), timer = useRef();
@@ -18,7 +19,7 @@ export default function ContentOutput({ graph, node, outputRef, readyIds, reduce
   };
   return <aside ref={outputRef} className={`content-output output-${node.kind} ${compact && !panelExpanded ? "output-collapsed" : ""}`} data-network-ui aria-busy={isAnimating} aria-label={`Content for ${node.label}`}>
     <div className="output-port" aria-hidden="true" />
-    <div className="output-top"><span><i /> {phaseLabel || (compact ? node.label : node.kind === "root" ? "THE ORIGIN" : "CONNECTED OUTPUT")}</span>{compact && node.children.length > 0 ? <button type="button" className="story-toggle" disabled={isAnimating} onClick={onToggleStory} aria-expanded={panelExpanded} aria-controls="node-story">{panelExpanded ? "CLOSE STORY ↓" : "READ STORY ↑"}</button> : <span>{String(node.depth).padStart(2, "0")} / {node.kind === "root" ? "ROOT" : "DEPTH"}</span>}</div>
+    <div className="output-top"><span><i /> {phaseLabel || (node.kind === "root" ? "Introduction" : node.label)}</span>{compact && node.children.length > 0 ? <button type="button" className="story-toggle" disabled={isAnimating} onClick={onToggleStory} aria-expanded={panelExpanded} aria-controls="node-story" aria-label={panelExpanded ? "Close details" : node.kind === "root" ? "Read introduction" : "Read details"}>{panelExpanded ? "Close" : node.kind === "root" ? "Read introduction" : "Read details"}</button> : <span>{String(node.depth).padStart(2, "0")} / {node.kind === "root" ? "Home" : "Level"}</span>}</div>
     <div id="node-story" ref={scroll} className="output-scroll" tabIndex={0} aria-label="Scroll node content" hidden={compact && !panelExpanded}>
       <div ref={body} className="output-body"><p className="output-eyebrow">{node.eyebrow || `${node.kind.toUpperCase()} / ${node.label.toUpperCase()}`}</p>
         <h1 id="output-title">{node.title.split("\n").map((line, index) => <span key={`${line}-${index}`} className={node.kind === "root" && index === 2 ? "output-emphasis" : ""}>{line}</span>)}</h1>
@@ -34,13 +35,12 @@ export default function ContentOutput({ graph, node, outputRef, readyIds, reduce
         {node.metrics?.length > 0 && <section className="project-list project-results"><h2>Results from README</h2><ul>{node.metrics.map(item => <li key={item}>{item}</li>)}</ul></section>}
         {node.technologies?.length > 0 && <section className="project-stack"><h2>Technologies</h2><p>{node.technologies.join(" · ")}</p></section>}
         {node.tags?.length > 0 && <div className="output-tags">{node.tags.map(tag => <span key={tag}>{tag}</span>)}</div>}
-        {node.actions?.length > 0 && <div className="output-actions">{node.actions.map((action, index) => <a className={index === 0 ? "output-action primary-action" : "output-action"} key={action.href} href={action.href} {...(/^https?:/.test(action.href) ? { target: "_blank", rel: "noreferrer" } : {})}>{action.label}<span aria-hidden="true">↗</span></a>)}</div>}
-        {node.copy && <button type="button" className="copy-address" onClick={copyAddress} aria-live="polite">{copy} <span aria-hidden="true">⧉</span></button>}
-        {node.children.length > 0 && <div className="output-connections"><div className="output-connections-title"><span>PATHWAYS CONNECTED</span><span>{String(node.children.filter(id => readyIds.has(id)).length).padStart(2, "0")} / {String(node.children.length).padStart(2, "0")}</span></div><div className="branch-status-dots" aria-hidden="true">{node.children.map(id => <i key={id} className={`${readyIds.has(id) ? "path-ready" : ""} ${visited.includes(id) ? "path-visited" : ""}`} title={graph.nodes[id].label} />)}</div><p className="branch-status-copy">{node.children.every(id => readyIds.has(id)) ? "Choose a connected neuron to continue exploring." : "New pathways are forming. Follow their connections."}</p></div>}
+        {node.actions?.length > 0 && <div className="output-actions">{node.actions.map((action, index) => <a className={index === 0 ? "output-action primary-action" : "output-action"} key={action.href} href={action.href} {...(/^https?:/.test(action.href) ? { target: "_blank", rel: "noreferrer" } : {})}>{action.label}<NeuralIcon name="arrow" /></a>)}</div>}
+        {node.copy && <button type="button" className="copy-address" onClick={copyAddress} aria-live="polite">{copy} <NeuralIcon name="brief" /></button>}
+        {node.children.length > 0 && <div className="output-connections"><div className="output-connections-title"><span>Connected sections</span><span>{String(node.children.filter(id => readyIds.has(id)).length).padStart(2, "0")} / {String(node.children.length).padStart(2, "0")}</span></div><div className="branch-status-dots" aria-hidden="true">{node.children.map(id => <i key={id} className={`${readyIds.has(id) ? "path-ready" : ""} ${visited.includes(id) ? "path-visited" : ""}`} title={graph.nodes[id].label} />)}</div><p className="branch-status-copy">{node.children.every(id => readyIds.has(id)) ? "Choose a section in the network to explore." : "Loading the connected sections…"}</p></div>}
         {!node.children.length && <p className="output-leaf-note">Path complete. Go Back to choose another connection.</p>}
-        {node.kind === "root" && <p className="root-note">BUILT WITH CURIOSITY. EXPLORED BY YOU.</p>}
       </div>
     </div>
-    {(!compact || panelExpanded) && <div className="output-bottom"><span>{node.children.length ? "BRANCH / EXPANDABLE" : "PATH COMPLETE"}</span><button type="button" disabled={isAnimating} onClick={canGoBack ? onBack : onReset}>{canGoBack ? "← Previous location" : "⌂ Return to root"}</button></div>}
+    {(!compact || panelExpanded) && <div className="output-bottom"><span>{node.children.length ? "Explore a section" : "End of this section"}</span><button type="button" disabled={isAnimating} onClick={canGoBack ? onBack : onReset}>{canGoBack ? "← Previous location" : "⌂ Return to root"}</button></div>}
   </aside>;
 }

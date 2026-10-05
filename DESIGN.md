@@ -1,0 +1,5 @@
+# Design
+
+Neon blue neural observatory with a human portfolio view. Full-screen organic 3D tissue remains the homepage, as explicitly requested. Cyan selected paths, a custom VK neural monogram, a compact floating header and command dock form the brand. Space Grotesk display, IBM Plex Sans body, JetBrains Mono for graph telemetry and controls.
+
+Brief opens a split composition: sticky identity and direct contact links beside readable project rows, graph-derived skill groups and the existing experience timeline. No invented metrics, credentials, skills or availability. Resume and project links use existing assets and repository data. The user requested no photographs; portrait imagery is omitted. About & work stays visible on mobile. Node titles use readable sentence case, with identity, sections and deeper content differentiated by core size and treatment. Background tissue is restrained so selected paths lead. Reduced-motion, keyboard, touch, fallback and adaptive rendering remain supported.
