@@ -1,4 +1,4 @@
-.viewport { min-height: 100vh; padding: 28px; color: #15211b; background: #dce5df; font-family: Arial, Helvetica, sans-serif; }
+.viewport { min-height: 100vh; padding: 28px; color: #15211b; background: #dce5df; font-family: "IBM Plex Sans", Helvetica, sans-serif; }
 .sheet { width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 20px 80px #17251d33; position: relative; padding-bottom: 15mm; }
 .header { min-height: 35mm; padding: 10mm 14mm 7mm; color: #fff; background: #15211b; }
 .kicker { margin: 0 0 2.5mm; color: #a9d2bd; font-size: 9pt; font-weight: 700; letter-spacing: .13em; }
