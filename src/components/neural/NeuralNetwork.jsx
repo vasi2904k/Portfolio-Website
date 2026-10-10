@@ -209,7 +209,7 @@ export default function NeuralNetwork({ repos = [] }) {
         {!compact && <button type="button" className={lightMode ? "is-active" : ""} aria-pressed={lightMode} onClick={() => setLightMode(!lightMode)} aria-label="Use lighter graphics"><NeuralIcon name="lite" /><span className="tool-text">Lite</span></button>}
         <button type="button" className="theme-toggle" onClick={() => setTheme(theme === "green" ? "blue" : "green")} aria-label={theme === "green" ? "Switch to neon blue theme" : "Switch to neural green theme"} title="Change neural palette"><NeuralIcon name="theme" /></button>
         <button type="button" aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(!paused)} aria-label={reduced ? "System reduced motion is enabled" : paused ? "Resume ambient motion" : "Pause ambient motion"}><NeuralIcon name={paused || reduced ? "play" : "pause"} /></button>
-        <button ref={helpButton} type="button" onClick={() => { setHelp(!help); setOverview(false); setRecruiter(false); }} aria-expanded={help} aria-controls="network-help" aria-label="How to explore"><NeuralIcon name="help" /></button>
+        <button ref={helpButton} type="button" onClick={() => { setHelp(!help); setOverview(false); setRecruiter(false); }} aria-expanded={help} aria-controls="network-help" aria-label="How to navigate"><NeuralIcon name="help" /></button>
       </div>
     </header>
     <nav ref={breadcrumb} className="network-location" data-network-ui aria-label="Current neural pathway">
@@ -224,25 +224,25 @@ export default function NeuralNetwork({ repos = [] }) {
         <button type="button" onClick={() => recenter()} aria-label="◎ RECENTER"><NeuralIcon name="focus" /><span>RECENTER</span><kbd aria-hidden="true">R</kbd></button>
       </div>
       <div className="network-orientation-tools">
-        <button type="button" className="deeper-control" disabled={state.isAnimating || !nextNode} onClick={() => step(1)} aria-label={nextNode ? "Move deeper to " + graph.nodes[nextNode].label : "End of this path"} title={nextNode ? "Next: " + graph.nodes[nextNode].label : "Use Back to explore another connection"}><NeuralIcon name="down" /><span>{nextNode ? "DEEPER" : "PATH COMPLETE"}</span></button>
+        <button type="button" className="deeper-control" disabled={state.isAnimating || !nextNode} onClick={() => step(1)} aria-label={nextNode ? "Move deeper to " + graph.nodes[nextNode].label : "End of this path"} title={nextNode ? "Next: " + graph.nodes[nextNode].label : "Go back to see what else is connected"}><NeuralIcon name="down" /><span>{nextNode ? "DEEPER" : "PATH COMPLETE"}</span></button>
         <button ref={mapButton} type="button" className="map-toggle" onClick={() => { setOverview(!overview); setHelp(false); setRecruiter(false); }} aria-expanded={overview} aria-controls="network-overview"><NeuralIcon name="map" /> <span>MAP</span><small>{state.visited.length}/{graph.order.length}</small></button>
       </div>
     </footer>
     <div className={"scene-instructions " + (learned ? "instructions-learned" : "")} aria-hidden={learned}>
       <span>{touchDevice || compact ? "TAP · EXPLORE" : "CLICK · EXPLORE"}</span><span>{touchDevice || compact ? "SWIPE UP/DOWN · NAVIGATE" : "SCROLL · NAVIGATE"}</span><span>{touchDevice || compact ? "PINCH · ZOOM" : "CTRL+SCROLL · ZOOM"}</span>
     </div>
-    <div className={"travel-feedback " + (!learned ? "feedback-initial" : "")} role="status" aria-live="polite">{phaseLabel || feedback || (!nextNode && !state.isAnimating ? "Path complete · Go Back to explore another connection" : "")}</div>
+    <div className={"travel-feedback " + (!learned ? "feedback-initial" : "")} role="status" aria-live="polite">{phaseLabel || feedback || (!nextNode && !state.isAnimating ? "Path complete · Go back to see what else is connected" : "")}</div>
     <p className="network-live sr-only" role="status" aria-live="polite">{!state.isAnimating && (state.activePath.map(id => id === graph.rootId ? "Root" : graph.nodes[id].label).join(" / ") + ". " + (selected.children.length ? selected.children.length + " connections available. Arrow keys move focus; Enter selects." : "Content revealed. Escape goes back."))}</p>
     {failed && <div className="fallback-notice" role="status">3D is unavailable. The connected map and keyboard navigation are ready.</div>}
     {overview && <NavigationOverview graph={graph} state={state} onSelect={id => { select(id, true); closeOverview(); }} onClose={closeOverview} />}
     {recruiter && <RecruiterOverview graph={graph} onNavigate={id => select(id, true)} onClose={closeRecruiter} />}
-    {help && <div id="network-help" className="network-help" role="dialog" aria-label="How to explore the network" data-network-ui>
+    {help && <div id="network-help" className="network-help" role="dialog" aria-label="How to navigate the network" data-network-ui>
       <div className="help-top"><span>FOLLOW YOUR CURIOSITY</span><button type="button" autoFocus onClick={closeHelp} aria-label="Close exploration help">×</button></div>
       <h2>The network is<br />your navigation.</h2><p>Glowing neurons are available. Select one to focus its story and grow its connections. ROOT and the breadcrumb always show your location.</p>
       <dl><div><dt>Drag / one finger</dt><dd>Orbit horizontally through the neural space</dd></div><div><dt>Scroll / swipe up or down</dt><dd>Navigate deeper or return through your visit history</dd></div><div><dt>Ctrl + scroll</dt><dd>Zoom in and out within branch limits</dd></div><div><dt>Pinch</dt><dd>Zoom on touch devices</dd></div><div><dt>Two-finger drag</dt><dd>Pan nearby; the branch stays close</dd></div><div><dt>Click / tap</dt><dd>Activate a neuron and reveal its branch</dd></div><div><dt>Double click / tap</dt><dd>Focus a neuron and center on it</dd></div><div><dt>Arrow keys / Enter</dt><dd>Focus available labels / activate</dd></div><div><dt>Escape / Back</dt><dd>Return to your previous location</dd></div><div><dt>Home / Root</dt><dd>Return to ROOT</dd></div><div><dt>R / Recenter</dt><dd>Restore this branch at any time</dd></div></dl>
       <button type="button" className="help-quality" aria-pressed={lightMode} onClick={() => setLightMode(!lightMode)}>{lightMode ? "Lite environment enabled" : "Use a lighter environment"}</button>
       <p className="help-note">Scroll inside the output panel to read without navigating. A pathway locks briefly while it opens. At the end of a path, use Back to choose another connection.</p>
     </div>}
-    <noscript><div className="javascript-note">Enable JavaScript to explore the interactive network. Contact Mohammed Vasi Khan at <a href="mailto:vk64375@gmail.com">vk64375@gmail.com</a>.</div></noscript>
+    <noscript><div className="javascript-note">Enable JavaScript to see the interactive network. Contact Mohammed Vasi Khan at <a href="mailto:vk64375@gmail.com">vk64375@gmail.com</a>.</div></noscript>
   </main>;
 }
