@@ -13,7 +13,7 @@ const fiberVertex = `
   varying float vDistance;
   varying float vNear;
   void main() {
-    vec3 p = position + vec3(sin(uTime * .18 + aPhase) * .07, cos(uTime * .13 + aPhase) * .06, 0.0);
+    vec3 p = position + vec3(sin(uTime * .55 + aPhase) * .07, cos(uTime * .42 + aPhase) * .06, 0.0);
     vec4 world = modelMatrix * vec4(p, 1.0);
     vDistance = length(cameraPosition - world.xyz);
     vNear = exp(-length(world.xyz - uActive) * .055);
@@ -30,10 +30,10 @@ const fiberFragment = `
   varying float vDistance;
   varying float vNear;
   void main() {
-    float pulse = .9 + .1 * sin(uTime * .4 + vPhase);
+    float pulse = .92 + .08 * sin(uTime * 1.4 + vPhase);
     float local = uActivity * vNear;
     float fade = 1.0 - smoothstep(55.0, 170.0, vDistance);
-    gl_FragColor = vec4(mix(uColor, uSignal, local * .5), (.16 + local * .12) * pulse * fade);
+    gl_FragColor = vec4(mix(uColor, uSignal, local * .5), (.25 + local * .12) * pulse * fade);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -87,6 +87,7 @@ const mistFragment = `
 
 export default function NeuralEnvironment({ quality, palette, activePosition, revision, moving, reduced }) {
   const tissue = useMemo(() => createNeuralEnvironment(quality), [quality]);
+  const sparkPositions = useMemo(() => new Float32Array(quality.signals * 18), [quality.signals]);
   const soma = useRef(), halos = useRef(), signals = useRef(), fog = useRef(), dust = useRef();
   const object = useMemo(() => new Object3D(), []), tint = useMemo(() => new Color(), []);
   const elapsed = useRef(0), activity = useRef(0);
@@ -110,8 +111,8 @@ export default function NeuralEnvironment({ quality, palette, activePosition, re
     fiberUniforms.uTime.value = time; fiberUniforms.uActivity.value = boost; mistUniforms.uTime.value = time;
     for (let i = 0; i < tissue.centers.length; i++) {
       const node = tissue.centers[i], p = node.position;
-      object.position.set(p[0] + Math.sin(time * .18 + node.phase) * .07, p[1] + Math.cos(time * .13 + node.phase) * .06, p[2]);
-      const pulse = 1 + Math.sin(time * .5 + node.phase) * .045;
+      object.position.set(p[0] + Math.sin(time * .55 + node.phase) * .07, p[1] + Math.cos(time * .42 + node.phase) * .06, p[2]);
+      const pulse = 1 + Math.sin(time * 1.4 + node.phase) * .04;
       object.scale.setScalar(node.radius * pulse); object.updateMatrix(); soma.current.setMatrixAt(i, object.matrix);
       const proximity = Math.exp(-object.position.distanceTo(fiberUniforms.uActive.value) * .055);
       tint.copy(fiberUniforms.uColor.value).lerp(fiberUniforms.uSignal.value, proximity * boost * .5);
@@ -120,29 +121,39 @@ export default function NeuralEnvironment({ quality, palette, activePosition, re
     }
     soma.current.instanceMatrix.needsUpdate = true; soma.current.instanceColor.needsUpdate = true; halos.current.instanceMatrix.needsUpdate = true;
     for (let i = 0; i < quality.signals; i++) {
-      const pathIndex = i < quality.signals / 2 && boost > .1 ? nearPaths[i % nearPaths.length] : i * 37 % tissue.paths.length;
+      const pathIndex = i < quality.signals / 2 ? nearPaths[i % nearPaths.length] : i * 37 % tissue.paths.length;
       const path = tissue.paths[pathIndex], points = path.points;
-      const cycle = (time * .075 + i * .173) % 1, window = .17 + boost * .14;
-      const progress = Math.min(1, cycle / window), step = progress * 8, a = Math.min(7, Math.floor(step)), t = step - a;
-      const j = a * 3;
-      object.position.set(points[j] + (points[j + 3] - points[j]) * t + Math.sin(time * .18 + path.phase) * .07,
-        points[j + 1] + (points[j + 4] - points[j + 1]) * t + Math.cos(time * .13 + path.phase) * .06,
-        points[j + 2] + (points[j + 5] - points[j + 2]) * t);
-      object.scale.setScalar(!reduced && cycle < window ? .055 + boost * .018 : 0); object.updateMatrix(); signals.current.setMatrixAt(i, object.matrix);
+      // Brief electrical strokes follow the fibers; no thick moving spheres.
+      const cycle = (time * .32 + i * .173) % 1, window = .24;
+      const visible = !reduced && cycle < window;
+      const head = Math.min(1, cycle / window);
+      for (let segment = 0; segment < 3; segment++) {
+        for (let endpoint = 0; endpoint < 2; endpoint++) {
+          const vertex = segment + endpoint;
+          const step = Math.max(0, head - (3 - vertex) * .035) * 8;
+          const a = Math.min(7, Math.floor(step)), t = step - a, j = a * 3;
+          const offset = i * 18 + segment * 6 + endpoint * 3;
+          for (let axis = 0; axis < 3; axis++) {
+            const drift = axis === 0 ? Math.sin(time * .55 + path.phase) * .07 : axis === 1 ? Math.cos(time * .42 + path.phase) * .06 : 0;
+            const kink = vertex === 1 || vertex === 2 ? Math.sin(i * 7 + vertex * 4 + axis * 2) * .035 : 0;
+            sparkPositions[offset + axis] = visible ? points[j + axis] + (points[j + 3 + axis] - points[j + axis]) * t + drift + kink : 0;
+          }
+        }
+      }
     }
-    signals.current.instanceMatrix.needsUpdate = true;
+    signals.current.geometry.attributes.position.needsUpdate = true;
     dust.current.rotation.y = time * .0015; dust.current.position.y = Math.sin(time * .05) * .25;
   });
   return <group name="neural-environment">
     <group name="distant-neural-field">
       <points raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldPositions.length / 3} array={tissue.fieldPositions} itemSize={3} /></bufferGeometry><pointsMaterial color={palette.field} size={.15} transparent opacity={.12} depthWrite={false} /></points>
-      <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldEdges.length / 3} array={tissue.fieldEdges} itemSize={3} /></bufferGeometry><lineBasicMaterial color={palette.fiber} transparent opacity={.065} depthWrite={false} /></lineSegments>
+      <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fieldEdges.length / 3} array={tissue.fieldEdges} itemSize={3} /></bufferGeometry><lineBasicMaterial color={palette.fiber} transparent opacity={.25} depthWrite={false} /></lineSegments>
     </group>
     <group name="organic-neural-tissue">
       <lineSegments raycast={noRaycast}><bufferGeometry><bufferAttribute attach="attributes-position" count={tissue.fibers.length / 3} array={tissue.fibers} itemSize={3} /><bufferAttribute attach="attributes-aPhase" count={tissue.phases.length} array={tissue.phases} itemSize={1} /></bufferGeometry><shaderMaterial uniforms={fiberUniforms} vertexShader={fiberVertex} fragmentShader={fiberFragment} transparent depthWrite={false} /></lineSegments>
-      <instancedMesh ref={soma} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><icosahedronGeometry args={[1, 1]} /><meshBasicMaterial transparent opacity={.25} /></instancedMesh>
-      <instancedMesh ref={halos} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 8, 6]} /><meshBasicMaterial color={palette.aura} transparent opacity={.02} depthWrite={false} blending={AdditiveBlending} /></instancedMesh>
-      <instancedMesh ref={signals} args={[null, null, quality.signals]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color={palette.signal} transparent opacity={.9} depthWrite={false} toneMapped={false} /></instancedMesh>
+      <instancedMesh ref={soma} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><icosahedronGeometry args={[1, 1]} /><meshBasicMaterial transparent opacity={.48} /></instancedMesh>
+      <instancedMesh ref={halos} args={[null, null, tissue.centers.length]} raycast={noRaycast} frustumCulled={false}><sphereGeometry args={[1, 8, 6]} /><meshBasicMaterial color={palette.aura} transparent opacity={.045} depthWrite={false} /></instancedMesh>
+      <lineSegments ref={signals} raycast={noRaycast} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" count={sparkPositions.length / 3} array={sparkPositions} itemSize={3} /></bufferGeometry><lineBasicMaterial color={palette.signal} transparent opacity={.85} depthWrite={false} toneMapped={false} linewidth={1} /></lineSegments>
     </group>
     <group name="volumetric-neural-atmosphere">
       <instancedMesh ref={fog} args={[null, null, tissue.clouds.length]} raycast={noRaycast}><sphereGeometry args={[1, 16, 12]} /><shaderMaterial vertexShader={mistVertex} fragmentShader={mistFragment} uniforms={mistUniforms} transparent depthWrite={false} side={BackSide} /></instancedMesh>

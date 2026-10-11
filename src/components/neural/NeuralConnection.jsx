@@ -9,17 +9,17 @@ function NeuralConnection({ points, runtime, emphasized, hovered, moving, palett
     const totalPoints = points.length / 3;
     geometry.current.setDrawRange(0, runtime.growth <= 0 ? 0 : Math.max(2, Math.floor(runtime.growth * totalPoints)));
     const hover = moving && hovered ? Math.sin(clock.elapsedTime * 3) * .1 : 0;
-    const targetOpacity = (hovered ? .7 : emphasized ? .55 : .075) + hover;
+    const targetOpacity = (hovered ? .7 : emphasized ? .55 : .16) + hover;
     const rate = moving ? 1 - Math.exp(-Math.min(delta, .05) * 8) : 1;
     material.current.opacity += (targetOpacity - material.current.opacity) * rate;
 
-    // Traveling signal on active-path connections: a bright dot moves along the bezier
+    // Short electrical flashes along the existing neural pathways.
     if (signal.current && signalMat.current) {
-      const active = emphasized && !hovered && moving && runtime.growth >= 1;
-      signalMat.current.opacity += ((active ? .8 : 0) - signalMat.current.opacity) * rate;
+      const active = moving && runtime.growth >= 1;
+      signalMat.current.opacity = active && signalPhase.current < .28 ? .9 : 0;
       if (active) {
-        signalPhase.current = (signalPhase.current + delta * 0.22) % 1;
-        const t = signalPhase.current;
+        signalPhase.current = (signalPhase.current + Math.min(delta, .05) * 0.32) % 1;
+        const t = Math.min(1, signalPhase.current / .28);
         const idx = Math.min(Math.floor(t * (totalPoints - 1)), totalPoints - 2) * 3;
         const nextIdx = idx + 3;
         const lt = (t * (totalPoints - 1)) - Math.floor(t * (totalPoints - 1));
@@ -28,7 +28,7 @@ function NeuralConnection({ points, runtime, emphasized, hovered, moving, palett
         signalPos.current[1] = points[idx + 1] + (points[nextIdx + 1] - points[idx + 1]) * lt;
         signalPos.current[2] = points[idx + 2] + (points[nextIdx + 2] - points[idx + 2]) * lt;
         // Trail point slightly behind
-        const trailT = Math.max(0, t - 0.04);
+        const trailT = Math.max(0, t - 0.045);
         const trailIdx = Math.min(Math.floor(trailT * (totalPoints - 1)), totalPoints - 2) * 3;
         const nextTrail = trailIdx + 3;
         const tlt = (trailT * (totalPoints - 1)) - Math.floor(trailT * (totalPoints - 1));
@@ -46,7 +46,7 @@ function NeuralConnection({ points, runtime, emphasized, hovered, moving, palett
     </line>
     <line ref={signal} raycast={() => null} frustumCulled={false}>
       <bufferGeometry><bufferAttribute attach="attributes-position" count={2} array={signalPos.current} itemSize={3} /></bufferGeometry>
-      <lineBasicMaterial ref={signalMat} color={palette.signal} transparent opacity={0} depthWrite={false} linewidth={2} />
+      <lineBasicMaterial ref={signalMat} color={palette.signal} transparent opacity={0} depthWrite={false} linewidth={1} />
     </line>
   </>;
 }

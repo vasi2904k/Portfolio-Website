@@ -1,4 +1,5 @@
 /* Brand layer: precise blue instruments around an organic neural canvas. */
+:root { color-scheme: light; --bg: #ffffff; --text: #173449; --muted: #526b7c; --accent: #0877b5; }
 body { --mono: var(--font-mono), monospace; }
 .network-header { top: 20px; padding: 10px 14px; border: 1px solid color-mix(in srgb,var(--neural-border) 65%,transparent); border-radius: 14px; background: color-mix(in srgb,var(--neural-panel) 86%,transparent); backdrop-filter: blur(16px); }
 .network-brand svg { width: 34px; height: 34px; color: var(--neural-accent); }
@@ -117,3 +118,34 @@ body { --mono: var(--font-mono), monospace; }
  .network-header .network-tools { flex: 0 0 auto; }
 }
 @media(max-width:360px) { .network-tools .recruiter-toggle { min-width: 82px; } }
+
+/* White glass floats over the neural tissue rather than obscuring it. */
+.neural-app { background: var(--neural-background); border-radius: 0; }
+.network-header,.network-bottom,.content-output,.network-help,.network-overview {
+  background: color-mix(in srgb,var(--neural-panel) 74%,transparent);
+  backdrop-filter: blur(22px) saturate(125%);
+  -webkit-backdrop-filter: blur(22px) saturate(125%);
+  border-color: color-mix(in srgb,var(--neural-border) 75%,white);
+  box-shadow: 0 12px 40px rgba(29,73,103,.08), inset 0 1px 0 rgba(255,255,255,.95);
+}
+.network-vignette { box-shadow: inset 0 0 100px 24px rgba(255,255,255,.48); }
+.network-atmosphere { mix-blend-mode: normal; opacity: .55; }
+.network-tools button { background: transparent; }
+.network-tools button.is-active,.network-location button:hover { color: var(--neural-accent); }
+.neuron-label,.neuron-label.root-label,.neuron-label.content-label {
+  background: color-mix(in srgb,var(--neural-panel) 68%,transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(29,73,103,.07);
+}
+.neuron-label:focus-visible { background: var(--neural-panel); }
+.neuron-selected > span,.neuron-label:hover > span { color: var(--neural-accent); }
+.output-port { background: var(--neural-panel); border-color: var(--neural-accent); }
+.output-action:hover { background: color-mix(in srgb,var(--neural-accent) 8%,white); }
+.output-action.primary-action:hover { background: color-mix(in srgb,var(--neural-accent) 85%,black); }
+.output-children button > i,.output-bullets li::before { border-color: var(--neural-accent); }
+.output-children button > i.is-visited { background: var(--neural-accent); }
+.output-children button b,.project-evidence p,.project-stack p,.project-list li { color: var(--neural-muted); }
+.human-portfolio { background: color-mix(in srgb,var(--neural-panel) 92%,transparent); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.neural-app ::selection { background: var(--neural-accent); color: white; }
+.story-toggle { color: var(--neural-accent); }

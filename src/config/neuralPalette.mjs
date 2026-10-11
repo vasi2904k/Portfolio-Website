@@ -2,19 +2,19 @@ export const DEFAULT_NEURAL_THEME = "blue";
 
 export const NEURAL_PALETTES = {
   green: {
-    background: "#14251e", field: "#5a6a5e", dendrite: "#6b7e6f", fiber: "#3a5a4e", mist: "#2a4a3a",
-    signal: "#8fbfa8", selected: "#eefaf5", hover: "#c7e8d8", available: "#a8c9b5", expanded: "#7a9e8c", inactive: "#5a7a6f",
-    edge: "#7a9e8c", aura: "#8cbf9b", text: "#dce8e0", muted: "#8a9bab", panel: "#0e1c15", border: "#5a6a5e",
+    background: "#ffffff", field: "#528675", dendrite: "#287d64", fiber: "#478b76", mist: "#e4f2ec",
+    signal: "#167354", selected: "#124e3c", hover: "#20805f", available: "#388b71", expanded: "#50937e", inactive: "#83a89b",
+    edge: "#3b8b73", aura: "#75baa1", text: "#173c31", muted: "#526e63", panel: "#ffffff", border: "#c7ded3",
   },
   blue: {
-    background: "#091e2a", field: "#3a5a6e", dendrite: "#4a6b82", fiber: "#2a4a5a", mist: "#1a2a3a",
-    signal: "#6bcbce", selected: "#e6f9f8", hover: "#a8d8e8", available: "#5cb3c9", expanded: "#4a95b0", inactive: "#3a6b82",
-    edge: "#4a95b0", aura: "#6bb6ce", text: "#e0e8e5", muted: "#8a9bab", panel: "#071627", border: "#3a5a6e",
+    background: "#ffffff", field: "#5491b8", dendrite: "#168bdd", fiber: "#508fba", mist: "#e6f3fb",
+    signal: "#0877b5", selected: "#075580", hover: "#0786c5", available: "#258fbd", expanded: "#4a95b0", inactive: "#82a8bf",
+    edge: "#3c96c1", aura: "#68bbdf", text: "#173449", muted: "#526b7c", panel: "#ffffff", border: "#c7dce9",
   },
 };
 
 export const NEURAL_QUALITY = {
-  desktop: { clusters: 20, fieldNodes: 400, dust: 200, signals: 30, mist: 10, dendriteDepth: 2, spread: 0.8, dpr: 1.5 },
-  mobile: { clusters: 8, fieldNodes: 150, dust: 70, signals: 12, mist: 6, dendriteDepth: 1, spread: 0.5, dpr: 1 },
-  lite: { clusters: 5, fieldNodes: 100, dust: 40, signals: 8, mist: 4, dendriteDepth: 1, spread: 0.5, dpr: 1 },
+  desktop: { clusters: 36, fieldNodes: 560, dust: 200, signals: 64, mist: 10, dendriteDepth: 2, spread: 0.6, dpr: 1.5 },
+  mobile: { clusters: 14, fieldNodes: 210, dust: 70, signals: 28, mist: 6, dendriteDepth: 1, spread: 0.45, dpr: 1 },
+  lite: { clusters: 8, fieldNodes: 140, dust: 40, signals: 16, mist: 4, dendriteDepth: 1, spread: 0.45, dpr: 1 },
 };

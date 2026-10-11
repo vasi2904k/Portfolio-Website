@@ -120,8 +120,7 @@ function SceneLifecycle({ onReady, onFailure, onSlow, moving, qualityName }) {
 export default function NeuralScene(props) {
   const { graph, state, compact, reduced, moving, qualityName, palette, outputRef, tetherRef } = props;
   const quality = NEURAL_QUALITY[qualityName];
-  return <Canvas camera={{ position: [0, 1, 23], fov: 44, near: .1, far: 500 }} dpr={[1, quality.dpr]} frameloop={moving ? "always" : "demand"} gl={{ alpha: false, antialias: !compact, powerPreference: "low-power" }} fallback={null}>
-    <color attach="background" args={[palette.background]} /><fog attach="fog" args={[palette.background, 80, 235]} />
+  return <Canvas camera={{ position: [0, 1, 23], fov: 44, near: .1, far: 500 }} dpr={[1, quality.dpr]} frameloop={moving ? "always" : "demand"} gl={{ alpha: true, antialias: !compact, powerPreference: "low-power" }} fallback={null}>
     <ambientLight intensity={.5} /><pointLight position={[5, 4, 5]} intensity={3} color={palette.aura} />
     <CameraRig {...props} />
     <NeuralEnvironment key={qualityName} quality={quality} palette={palette} activePosition={graph.nodes[state.currentNode].position} revision={state.revision} moving={moving} reduced={reduced} />
