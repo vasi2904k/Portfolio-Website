@@ -150,7 +150,7 @@ export function getAvailableIds(graph, state) {
 
 export function getNextNode(graph, state) {
   const children = graph.nodes[state.currentNode].children;
-  const candidate = children.includes(state.focusedNode) ? state.focusedNode : children.includes(state.hoveredNode) ? state.hoveredNode : children[0];
+  const candidate = children.includes(state.focusedNode) ? state.focusedNode : children.includes(state.hoveredNode) ? state.hoveredNode : children.find(id => !state.visited.includes(id)) || children[0];
   return state.readyNodes.includes(candidate) ? candidate : null;
 }
 

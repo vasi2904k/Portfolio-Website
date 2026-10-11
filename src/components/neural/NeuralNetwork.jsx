@@ -99,7 +99,7 @@ export default function NeuralNetwork({ repos = [] }) {
       announce((direction < 0 ? "↑ Back to " : "↓ Exploring ") + graph.nodes[id].label);
     }
   }, [begin, dispatchStep, state.parentNode, nextNode, announce, graph, onInteraction]);
-  const gestures = useSceneGestures({ locked: state.isAnimating, suspended: help || overview || recruiter,
+  const gestures = useSceneGestures({ currentNode: state.currentNode, locked: state.isAnimating, suspended: help || overview || recruiter,
     onActivate: select, onFocusNode: focusNeuron, onTravel: step, onPreview: hover, onInteraction,
     onOrbit: (x, y) => cameraApi.current?.orbit(x, y), onPointerMove, onTouch: () => setTouchDevice(true) });
   cancelInput.current = gestures.cancel;

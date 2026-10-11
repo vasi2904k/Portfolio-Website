@@ -26,6 +26,14 @@ function settle(state, model = graph) {
 const start = () => settle(initialNetworkState(graph));
 const choose = (state, id) => settle(reduce(state, { type: "SELECT", id }));
 
+test("forward travel from root chooses the next unvisited section after returning", () => {
+  let state = choose(start(), "about");
+  state = settle(reduce(state, { type: "BACK" }));
+  assert.equal(getNextNode(graph, state), "skills");
+  state = reduce(state, { type: "HOVER", id: "projects" });
+  assert.equal(getNextNode(graph, state), "projects");
+});
+
 test("initial state explicitly tracks location, target and loading lock", () => {
   const state = initialNetworkState(graph);
   assert.equal(state.currentNode, "root"); assert.equal(state.parentNode, null);

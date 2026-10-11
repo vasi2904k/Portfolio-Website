@@ -11,6 +11,20 @@ async function settled(page, id = "root") {
 async function pose(page) { return page.locator(".neural-app").getAttribute("data-camera-position"); }
 async function activate(page, id) { await page.locator('.neuron-label[data-neural-id="' + id + '"]').click(); await settled(page, id); }
 
+test("upward swipe on Skills opens Skills instead of About", async ({ page }) => {
+  await page.goto("/"); await settled(page);
+  const label = page.locator('.neuron-label[data-neural-id="skills"]');
+  await expect(label).toBeEnabled();
+  await label.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    for (const [type, offset] of [["pointerdown", 0], ["pointermove", -80], ["pointerup", -100]]) {
+      element.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 81, pointerType: "touch", clientX: x, clientY: y + offset, button: 0 }));
+    }
+  });
+  await settled(page, "skills");
+});
+
 test("3D branch activation, Back, breadcrumb and Root", async ({ page }) => {
   const errors = []; page.on("pageerror", error => errors.push(error.message));
   page.on("console", message => { if (message.type() === "error" && /shader|hydration|did not match|WebGLProgram/i.test(message.text())) errors.push(message.text()); });

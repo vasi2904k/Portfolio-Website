@@ -71,7 +71,12 @@ export default function useSceneGestures(options) {
     if (value.locked || value.suspended || record.button > 0) return;
     if (kind === "tap" && record.node) activate(record.node);
     // On touch, vertical swipes always navigate (no mode toggle needed).
-    else if (record.type === "touch" && (kind === "forward" || kind === "back")) value.onTravel(kind === "forward" ? 1 : -1);
+    else if (record.type === "touch" && (kind === "forward" || kind === "back")) {
+      if (kind === "forward" && record.node && record.node !== value.currentNode) {
+        value.onInteraction();
+        value.onActivate(record.node);
+      } else value.onTravel(kind === "forward" ? 1 : -1);
+    }
   }, [activate]);
   const click = useCallback(event => {
     if (event.detail > 0 || latest.current.locked || latest.current.suspended) { event.preventDefault(); event.stopPropagation(); }
