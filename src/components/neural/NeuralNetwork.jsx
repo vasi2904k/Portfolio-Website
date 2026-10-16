@@ -111,7 +111,14 @@ export default function NeuralNetwork({ repos = [] }) {
   }, [ready, onInteraction]);
   const closeHelp = useCallback(() => { setHelp(false); helpButton.current?.focus(); }, []);
   const closeOverview = useCallback(() => { setOverview(false); mapButton.current?.focus(); }, []);
-  const closeRecruiter = useCallback((restoreFocus = true) => { setRecruiter(false); if (restoreFocus) recruiterButton.current?.focus(); }, []);
+  const closeRecruiter = useCallback((restoreFocus = true) => { setRecruiter(false); if (restoreFocus) requestAnimationFrame(() => recruiterButton.current?.focus()); }, []);
+  useEffect(() => {
+    if (!recruiter || !app.current) return;
+    const background = Array.from(app.current.children).filter(child => child.id !== "recruiter-overview" && child !== viewportRef.current);
+    const previousInert = background.map(child => [child, child.inert]);
+    background.forEach(child => { child.inert = true; });
+    return () => previousInert.forEach(([child, wasInert]) => { child.inert = wasInert; });
+  }, [recruiter]);
   useEffect(() => { breadcrumb.current?.lastElementChild?.scrollIntoView({ block: "nearest", inline: "end" }); }, [state.currentNode]);
 
   useEffect(() => {

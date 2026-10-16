@@ -53,5 +53,13 @@
     "created_at": "2026-02-15T00:00:00Z",
     "updated_at": "2026-04-25T00:00:00Z",
     "stargazers_count": 6
+  },
+  {
+    "id": 6,
+    "name": "decision-tree-regression",
+    "full_name": "vasi2904k/decision-tree-regression",
+    "html_url": "https://github.com/vasi2904k/decision-tree-regression",
+    "description": "Decision tree regression with GridSearchCV model tuning",
+    "language": "Jupyter Notebook"
   }
 ]

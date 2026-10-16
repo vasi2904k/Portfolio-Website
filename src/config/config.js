@@ -84,11 +84,11 @@ export const linkedinHighlights = [
 // Manual display name and priority overrides for auto-synced GitHub projects.
 // Keys are exact repository names. Only include repos you want to customise.
 export const PROJECT_OVERRIDES = {
-  "AgroLens-AI":                        { featured: true, displayName: "AgroLens AI",              category: "ai",   priority: 1 },
-  "ecommerce-sales":                    { featured: true, displayName: "E-commerce Analysis",       category: "data", priority: 2 },
-  "Global-Pollution-Analysis":          { featured: true, displayName: "Global Pollution Analysis", category: "data", priority: 3 },
-  "Food-Delivery-Time-Prediction":      { featured: true, displayName: "Delivery Prediction",       category: "ml",   priority: 4 },
-  "decision-tree-regression":           { featured: true, displayName: "Decision Tree Regression",  category: "ml",   priority: 5 },
+  "Food-Delivery-Time-Prediction":      { featured: true, displayName: "Food Delivery Time Prediction", category: "ml", priority: 1 },
+  "decision-tree-regression":           { featured: true, displayName: "Decision Tree Regression", category: "ml", priority: 2 },
+  "AgroLens-AI":                        { featured: true, displayName: "AgroLens AI", category: "ai", priority: 3 },
+  "ecommerce-sales":                    { featured: true, displayName: "E-commerce Analysis", category: "data", priority: 4 },
+  "Global-Pollution-Analysis":          { featured: false, displayName: "Global Pollution Analysis", category: "data", priority: 100 },
   "Admission-Prediction-Linear-Regression": { featured: true, displayName: "Admission Prediction", category: "ml",   priority: 6 },
   "imdb-movie-eda":                     { featured: true, displayName: "IMDb Movie EDA",            category: "data", priority: 7 },
   "Portfolio-Website":                  { featured: true, displayName: "Neural Portfolio",          category: "web",  priority: 8 },
